@@ -1,0 +1,234 @@
+================================================================================
+🎓 STP MANAGEMENT SYSTEM - COMPLETE TECHNICAL DOCUMENT (UPDATED)
+================================================================================
+Document Version : v1.1
+Date             : July 2026
+Framework        : Laravel 13 + PostgreSQL / MySQL
+Frontend         : Blade + Tailwind CSS / Filament PHP
+Scope            : User Roles, Course Curriculum, Batch Scheduling, Student 
+                   Admission, Attendance, Finance, Lab Inventory, and SMS.
+System Type      : Standalone System (Director/Chairman as Super Admin)
+================================================================================
+
+--------------------------------------------------------------------------------
+১. ইউজার রোল ও অ্যাক্সেস কন্ট্রোল (User Roles & Access Control)
+--------------------------------------------------------------------------------
+
+১.১ সিস্টেম ইউজার রোলস:
+* Super Admin (Director / Chairman / STP Head): সিস্টেমের পূর্ণ নিয়ন্ত্রণ, স্টাফ ও ট্রেইনার ম্যানেজমেন্ট, ফিন্যান্সিয়াল ওভারভিউ এবং কোর্স অনুমোদন।
+* Staff / Coordinator (Admin Staff): স্টুডেন্ট ভর্তি, ব্যাচ অ্যাসাইনমেন্ট, ডেইলি রুটিন এন্ট্রি, ফি কালেকশন এবং ইনভেন্টরি এন্ট্রি।
+* Trainer / Instructor (Certified Faculty): শুধুমাত্র তার নিজের অ্যাসাইন করা ব্যাচের স্টুডেন্টদের হাজিরা নেওয়া, লেকচার শিট আপলোড এবং ইন্টারনাল প্রগ্রেস ইনপুট।
+
+১.২ পারমিশন ম্যাট্রিক্স:
++-------------------------+-------------+---------------------+----------------------+
+| Permission              | Super Admin | Staff / Coordinator | Trainer / Instructor |
++-------------------------+-------------+---------------------+----------------------+
+| Course / Batch Config   |      ✓      |          X          |           X          |
+| Student Admission       |      ✓      |          ✓          |           X          |
+| Mark Daily Attendance   |      ✓      |          ✓          |     ✓ (নিজ ব্যাচ)    |
+| View Financial Reports  |      ✓      |          X          |           X          |
+| Manage Staff & Trainers |      ✓      |          X          |           X          |
+| Manage Lab Resources    |      ✓      |          ✓          |           X          |
+| Send Bulk SMS Notices   |      ✓      |          ✓          |           X          |
++-------------------------+-------------+---------------------+----------------------+
+
+
+--------------------------------------------------------------------------------
+২. কোর ও অ্যাডভান্সড মডিউল ফিচার তালিকা (Module Feature List)
+--------------------------------------------------------------------------------
+
+২.১ Course & Curriculum Module (NSDA Compliance)
+* Course CRUD: কোর্স নাম, কোড, NTVQF লেভেল এবং মোট ঘণ্টা ইনপুট দিয়ে কোর্স তৈরি।
+* Resource Mapping: কোন কোর্সের জন্য কোন ল্যাব বা কি কি যন্ত্রপাতি লাগবে তা ম্যাপ করা।
+
+২.২ Batch & Schedule Management Module
+* Batch Creation: প্রতিটি কোর্সের আন্ডারে ইউনিক ব্যাচ নম্বর এবং শুরুর/শেষের তারিখ দিয়ে ব্যাচ তৈরি।
+* Trainer Assignment: নির্দিষ্ট ব্যাচে সার্টিফাইড ট্রেইনার যুক্ত করা এবং ক্লাস রুটিন সেট করা।
+
+২.৩ Trainee/Student Admission Module
+* NSDA-Standard Form: নাম, ফোন, এনআইডি/বার্থ রেজিস্ট্রেশন নম্বরসহ প্রয়োজনীয় ফিল্ড।
+* Bulk Import: এক্সেল/সিএসভি ফাইল আপলোড করে এক ক্লিকে পুরো ব্যাচের স্টুডেন্ট ডাটা ইম্পোর্ট।
+
+২.৪ Academic & Attendance Module
+* Daily Attendance Tracker: ট্রেইনারদের দ্বারা দৈনিক ডিজিটাল হাজিরা গ্রহণ।
+* Attendance Percentage: এনএসডিএ গাইডলাইন (৮০% উপস্থিতি) পূরণ হচ্ছে কিনা তা স্বয়ংক্রিয়ভাবে ক্যালকুলেট করা।
+
+২.৫ Accounts & Financial Module
+* Fee Collection & Receipts: শিক্ষার্থীদের ভর্তি বা এক্সাম ফি কালেকশন এবং পিডিএফ রশিদ জেনারেট।
+* Expense Tracker: সেন্টারের দৈনন্দিন খরচ (ইউটিলিটি বিল, ট্রেইনার স্যালারি) এন্ট্রি ও ক্যাশফ্লো রিপোর্ট।
+
+২.৬ ল্যাব ও রিসোর্স ট্র্যাকিং মডিউল (Lab & Resource Allocation)
+* ল্যাব বুকিং রুটিন: কোন ব্যাচের ক্লাস কোন ল্যাবে কতক্ষণ চলবে তা ট্র্যাক করা.
+* ইনভেন্টরি ম্যানেজমেন্ট: পিসি, রাউটার বা অন্যান্য যন্ত্রপাতির কন্ডিশন (Good/Damaged) ট্র্যাক করা।
+
+২.৭ নোটিফিকেশন ও অ্যালার্ট সিস্টেম (Automated Communication)
+* অটোমেটেড SMS গেটওয়ে: ভর্তি নিশ্চিতকরণ, বকেয়া ফি এবং ক্লাসের নোটিশ সরাসরি স্টুডেন্টের মোবাইলে পাঠানো।
+
+২.৮ ডিজিটাল লাইব্রেরি ও ফিডব্যাক মডিউল (Resource & Feedback Hub)
+* স্টাডি মেটেরিয়ালস: মডিউল ভিত্তিক লেকচার শিট, পিডিএফ ও হ্যান্ডআউট আপলোড।
+* ট্রেইনার ইভালুয়েশন: স্টুডেন্টদের থেকে ট্রেইনারের পারফরম্যান্স নিয়ে অ্যানোনিমাস ফিডব্যাক রেটিং নেওয়া।
+
+
+--------------------------------------------------------------------------------
+৩. ডেটাবেজ টেবিল রেফারেন্স (Database Schema Reference)
+--------------------------------------------------------------------------------
+
+৩.১ users টেবিল
+Schema::create('users', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->string('password');
+    $table->enum('role', ['super_admin', 'staff', 'trainer'])->default('trainer');
+    $table->boolean('is_active')->default(true);
+    $table->timestamp('last_login_at')->nullable();
+    $table->timestamp('last_password_changed_at')->nullable();
+    $table->timestamps();
+});
+
+৩.২ courses টেবিল
+Schema::create('courses', function (Blueprint $table) {
+    $table->id();
+    $table->string('course_name'); 
+    $table->string('course_code')->unique(); 
+    $table->string('ntvqf_level'); 
+    $table->integer('duration_hours'); 
+    $table->text('description')->nullable();
+    $table->timestamps();
+});
+
+৩.৩ batches টেবিল
+Schema::create('batches', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('course_id')->constrained()->onDelete('cascade');
+    $table->foreignId('trainer_id')->nullable()->constrained('users')->onDelete('set null');
+    $table->string('batch_number')->unique(); 
+    $table->date('start_date');
+    $table->date('end_date');
+    $table->enum('status', ['upcoming', 'running', 'completed'])->default('upcoming');
+    $table->timestamps();
+});
+
+৩.৪ students টেবিল
+Schema::create('students', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('batch_id')->constrained()->onDelete('cascade');
+    $table->string('student_name');
+    $table->string('phone')->unique();
+    $table->string('email')->nullable();
+    $table->string('nid_or_birth_reg')->unique(); 
+    $table->date('date_of_birth');
+    $table->enum('gender', ['Male', 'Female', 'Other']);
+    $table->string('educational_qualification')->nullable();
+    $table->string('image')->nullable();
+    $table->enum('status', ['active', 'dropped'])->default('active');
+    $table->timestamps();
+});
+
+৩.৫ attendances টেবিল
+Schema::create('attendances', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('student_id')->constrained()->onDelete('cascade');
+    $table->foreignId('batch_id')->constrained()->onDelete('cascade');
+    $table->date('attendance_date');
+    $table->boolean('is_present')->default(true);
+    $table->timestamps();
+});
+
+৩.৬ transactions টেবিল
+Schema::create('transactions', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('student_id')->nullable()->constrained()->onDelete('set null'); 
+    $table->enum('type', ['income', 'expense']);
+    $table->string('category'); 
+    $table->decimal('amount', 10, 2);
+    $table->date('transaction_date');
+    $table->string('receipt_number')->unique()->nullable();
+    $table->text('description')->nullable();
+    $table->timestamps();
+});
+
+৩.৭ resources টেবিল (ল্যাব ও ইনভেন্টরি)
+Schema::create('resources', function (Blueprint $table) {
+    $table->id();
+    $table->string('resource_name'); 
+    $table->string('resource_code')->unique();
+    $table->string('location_lab'); 
+    $table->enum('condition', ['good', 'damaged', 'under_maintenance'])->default('good');
+    $table->timestamps();
+});
+
+৩.৮ notifications টেবিল (SMS লগ)
+Schema::create('notifications', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+    $table->string('recipient_phone')->nullable();
+    $table->text('message_body');
+    $table->enum('type', ['sms', 'system_alert']);
+    $table->enum('status', ['pending', 'sent', 'failed'])->default('pending');
+    $table->timestamps();
+});
+
+৩.৯ internal_evaluations টেবিল (ফিডব্যাক)
+Schema::create('internal_evaluations', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('batch_id')->constrained()->onDelete('cascade');
+    $table->foreignId('trainer_id')->constrained('users')->onDelete('cascade');
+    $table->integer('rating_score'); 
+    $table->text('review_comments')->nullable();
+    $table->timestamps();
+});
+
+
+--------------------------------------------------------------------------------
+৪. গুরুত্বপূর্ণ API/Route এন্ডপয়েন্ট তালিকা (Route Endpoint List)
+--------------------------------------------------------------------------------
++--------+----------------------------+---------------------------------------+---------------------+
+| Method | Route                      | কাজ                                   | Access Allowed      |
++--------+----------------------------+---------------------------------------+---------------------+
+| GET    | /dashboard                 | মেইন ড্যাশবোর্ড ভিউ                  | সবাই                |
+| GET    | /courses                   | কোর্স ক্রুড (CRUD) লিস্ট              | Super Admin, Staff  |
+| POST   | /courses                   | নতুন কোর্স অ্যাড করা                   | Super Admin         |
+| GET    | /batches                   | চলমান ও আপকামিং ব্যাচ লিস্ট          | সবাই                |
+| POST   | /batches                   | নতুন ব্যাচ এবং ট্রেইনার অ্যাসাইনমেন্ট   | Super Admin, Staff  |
+| GET    | /students/admission        | নতুন স্টুডেন্ট ভর্তি ফর্ম            | Super Admin, Staff  |
+| POST   | /students/import           | এক্সেল ফাইলের মাধ্যমে Bulk স্টুডেন্ট   | Super Admin, Staff  |
+| POST   | /attendance/store          | নির্দিষ্ট ক্লাসের হাজিরা সেভ করা      | All Authenticated   |
+| GET    | /resources                 | ল্যাব ও যন্ত্রপাতির তালিকা             | Super Admin, Staff  |
+| POST   | /resources                 | নতুন ল্যাব বা পিসি এন্ট্রি করা         | Super Admin         |
+| POST   | /notifications/send-bulk   | পুরো ব্যাচে একসাথে নোটিশ SMS পাঠানো  | Super Admin, Staff  |
+| GET    | /evaluations/report        | ট্রেইনারদের ফিডব্যাক ও রেটিং রিপোর্ট | Super Admin         |
++--------+----------------------------+---------------------------------------+---------------------+
+
+
+--------------------------------------------------------------------------------
+৫. রিকোয়েস্ট ভ্যালিডেশন রুলস (Validation Rules)
+--------------------------------------------------------------------------------
+
+৫.১ স্টুডেন্ট অ্যাডমিশন ভ্যালিডেশন:
+$rules = [
+    'batch_id' => 'required|exists:batches,id',
+    'student_name' => 'required|string|min:3|max:150',
+    'phone' => 'required|regex:/^01[3-9][0-9]{8}$/|unique:students,phone',
+    'nid_or_birth_reg' => 'required|numeric|digits_between:10,17|unique:students,nid_or_birth_reg',
+    'date_of_birth' => 'required|date|before:today',
+    'gender' => 'required|in:Male,Female,Other',
+    'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+];
+
+৫.২ ল্যাব রিসোর্স ভ্যালিডেশন:
+$rules = [
+    'resource_name' => 'required|string|max:100',
+    'resource_code' => 'required|string|unique:resources,resource_code',
+    'location_lab' => 'required|string|max:50',
+    'condition' => 'required|in:good,damaged,under_maintenance',
+];
+
+
+--------------------------------------------------------------------------------
+🔒 ডেভেলপারের জন্য সিকিউরিটি ও লজিক নোট
+--------------------------------------------------------------------------------
+১. পাসওয়ার্ড হ্যাশিং: কোনো ইউজারের পাসওয়ার্ড কখনো প্লেইন টেক্সট আকারে সেভ করা যাবে না, বাধ্যতামূলকভাবে লারাভেলের Hash::make() বা bcrypt() ব্যবহার করতে হবে।
+২. উপস্থিতি ফ্ল্যাগ: কোনো ব্যাচের স্টুডেন্টের উপস্থিতি যদি ৮০%-এর নিচে নেমে যায়, তবে ড্যাশবোর্ডে তার নামের পাশে একটি লাল ওয়ার্নিং ফ্ল্যাগ দেখাবে যাতে অ্যাডমিন বা ট্রেইনার ড্রপআউট রিস্ক আগে থেকেই বুঝতে পারেন।
+৩. সেশন সিকিউরিটি: পাসওয়ার্ড পরিবর্তন হলে সেই ইউজারের অন্যান্য সব ডিভাইস থেকে অ্যাক্টিভ সেশন স্বয়ংক্রিয়ভাবে লগআউট হয়ে যাবে।
+================================================================================

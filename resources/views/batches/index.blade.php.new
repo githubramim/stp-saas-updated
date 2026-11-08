@@ -1,0 +1,26 @@
+@extends('layouts.app')
+@section('content')
+<div class="container mt-4">
+    <h2>Batches</h2>
+    <div class="row mb-3"><div class="col-12"><a href="{{ route('batches.create') }}" class="btn btn-primary">+ Add Batch</a></div></div>
+    @if($batches->isEmpty())
+        <div class="alert alert-info"><p>No batches yet.</p></div>
+    @else
+        <div class="table-responsive"><table class="table table-hover">
+        <thead><tr><th>Name</th><th>Course</th><th>Shift</th><th>Duration</th><th>Seats</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach($batches as $b)
+            <tr>
+                <td>{{ $b->name }}</td><td>{{ $b->course?->name ?? '—' }}</td><td>{{ $b->shift ?? '—' }}</td>
+                <td>{{ $b->start_date?->format('d M Y') }} @if($b->end_date) → {{ $b->end_date->format('d M Y') }} @endif</td>
+                <td>{{ $b->seat_capacity }}</td>
+                <td><span class="badge bg-{{ $b->status=='active'?'success':'danger' }}">{{ ucfirst($b->status) }}</span></td>
+                <td><a href="{{ route('batches.edit', $b) }}" class="btn btn-sm btn-outline-secondary">Edit</a></form>
+                    <form method="POST" action="{{ route('batches.destroy', $b) }}" class="d-inline" onsubmit="return confirm('Delete?')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Delete</button></form></td>
+            </tr>
+            @endforeach
+        </tbody>
+        </table></div>
+    @endif
+</div>
+@endsection

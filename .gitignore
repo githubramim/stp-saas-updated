@@ -26,3 +26,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/backup.sql
+/extract.py
+/fix_buttons.php
+/.env.example
+/Requirement.txt

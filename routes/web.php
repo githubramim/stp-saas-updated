@@ -184,14 +184,22 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Standalone "create" pages were replaced by Bootstrap modals on each index page.
+    Route::get('/{module}/create', fn () => abort(404))
+        ->whereIn('module', [
+            'projects', 'courses', 'batches', 'attendance', 'exams', 'schedules',
+            'transactions', 'study-materials', 'resources', 'certificates',
+            'notifications', 'notices', 'evaluations',
+        ]);
+
     // Projects
     Route::post('/projects/switch-context', [ProjectController::class, 'switchContext'])->name('projects.switch-context');
     Route::post('/projects/{project}/switch', [ProjectController::class, 'switch'])->name('projects.switch');
     Route::get('/projects/{project}/dashboard', [ProjectController::class, 'dashboard'])->name('projects.dashboard');
-    Route::resource('projects', ProjectController::class);
+    Route::resource('projects', ProjectController::class)->except(['create', 'show']);
 
-    Route::resource('courses', CourseController::class);
-    Route::resource('batches', BatchController::class);
+    Route::resource('courses', CourseController::class)->except(['create', 'show']);
+    Route::resource('batches', BatchController::class)->except(['create', 'show']);
     Route::post('/projects/{project}/courses/inline-store', [CourseController::class, 'inlineStore'])->name('courses.inline-store');
     Route::post('/projects/{project}/batches/inline-store', [BatchController::class, 'inlineStore'])->name('batches.inline-store');
 
@@ -218,7 +226,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/attendance/{attendance_session}/qr/regenerate', [AttendanceController::class, 'regenerateQr'])->name('attendance.qr.regenerate');
     Route::resource('attendance', AttendanceController::class)
         ->parameters(['attendance' => 'attendance_session'])
-        ->except(['edit', 'update']);
+        ->except(['edit', 'update', 'create']);
 
     // Exams and results (BRD module #15)
     Route::post('/exams/{exam}/publish', [ExamController::class, 'publish'])->name('exams.publish');
@@ -228,34 +236,35 @@ Route::middleware('auth')->group(function () {
     Route::get('/exams/{exam}/results', [ExamResultController::class, 'results'])->name('exams.results');
     Route::get('/exams/{exam}/results.csv', [ExamResultController::class, 'resultsCsv'])->name('exams.results.csv');
     Route::get('/exams/{exam}/report-card/{student}', [ExamResultController::class, 'reportCard'])->name('exams.report-card');
-    Route::resource('exams', ExamController::class);
+    Route::resource('exams', ExamController::class)->except(['create']);
 
     // Class routine (BRD module #11)
     Route::get('/schedules/print', [ScheduleController::class, 'print'])->name('schedules.print');
-    Route::resource('schedules', ScheduleController::class)->except(['show']);
+    Route::resource('schedules', ScheduleController::class)->except(['show', 'create']);
 
     // Transactions
+    Route::get('/transactions/export', [TransactionController::class, 'export'])->name('export.transactions');
     Route::get('/transactions/receipt/{transaction}', [TransactionController::class, 'receipt'])->name('transactions.receipt');
-    Route::resource('transactions', TransactionController::class);
+    Route::resource('transactions', TransactionController::class)->except(['create']);
 
     // Study Materials
     Route::get('/study-materials/{studyMaterial}/download', [StudyMaterialController::class, 'download'])->name('study-materials.download');
-    Route::resource('study-materials', StudyMaterialController::class);
+    Route::resource('study-materials', StudyMaterialController::class)->except(['create', 'show']);
 
     // Resources
-    Route::resource('resources', ResourceController::class);
-Route::resource('certificates', CertificateController::class);
+    Route::resource('resources', ResourceController::class)->except(['create', 'show']);
+    Route::resource('certificates', CertificateController::class)->except(['create']);
 
 
     // Notifications
     Route::post('/notifications/send-single', [NotificationController::class, 'sendSingle'])->name('notifications.send-single');
     Route::post('/notifications/send-bulk', [NotificationController::class, 'sendBulk'])->name('notifications.send-bulk');
-    Route::resource('notifications', NotificationController::class);
-Route::resource('notices', NoticeController::class);
+    Route::resource('notifications', NotificationController::class)->only(['index']);
+    Route::resource('notices', NoticeController::class)->except(['create']);
 
     // Internal Evaluations
     Route::get('/evaluations/report', [InternalEvaluationController::class, 'report'])->name('evaluations.report');
-    Route::resource('evaluations', InternalEvaluationController::class);
+    Route::resource('evaluations', InternalEvaluationController::class)->except(['create', 'show']);
 });
 
 require __DIR__.'/auth.php';

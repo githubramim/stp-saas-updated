@@ -24,7 +24,11 @@ class BatchController extends Controller
 
         $project = Project::find($this->getProjectId());
 
-        return view('batches.index', compact('batches', 'project'));
+        $courses = Course::where('institute_id', Auth::user()->institute_id)
+            ->where('status', 'active')
+            ->get();
+
+        return view('batches.index', compact('batches', 'project', 'courses'));
     }
 
     public function create()

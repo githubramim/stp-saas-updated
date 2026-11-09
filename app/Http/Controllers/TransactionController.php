@@ -64,6 +64,69 @@ class TransactionController extends Controller
         return view('transactions.index', compact('transactions', 'totalIncome', 'totalExpense', 'batches', 'students'));
     }
 
+    public function export(Request $request)
+    {
+        abort_if(Auth::user()->isTrainer(), 403, 'Trainers do not have access to Financial Transactions.');
+
+        $instituteId = Auth::user()->institute_id;
+        $projectId = session('current_project_id');
+
+        $query = Transaction::with(['student', 'batch'])
+            ->where('institute_id', $instituteId);
+
+        if ($projectId) {
+            $query->where(function ($q) use ($projectId) {
+                $q->whereHas('student', fn ($sq) => $sq->where('project_id', $projectId))
+                    ->orWhereHas('batch', fn ($bq) => $bq->where('project_id', $projectId))
+                    ->orWhereNull('student_id');
+            });
+        }
+
+        if ($request->type) {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->category) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->date_from) {
+            $query->whereDate('transaction_date', '>=', $request->date_from);
+        }
+
+        if ($request->date_to) {
+            $query->whereDate('transaction_date', '<=', $request->date_to);
+        }
+
+        $transactions = $query->orderBy('transaction_date', 'desc')->get();
+        $filename = 'transactions-' . now()->format('Y-m-d-His') . '.csv';
+
+        return response()->streamDownload(function () use ($transactions) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, [
+                'Date', 'Type', 'Category', 'Student', 'Batch',
+                'Amount', 'Payment Method', 'Receipt Number', 'Description',
+            ]);
+
+            foreach ($transactions as $transaction) {
+                fputcsv($handle, [
+                    optional($transaction->transaction_date)->format('Y-m-d'),
+                    $transaction->type,
+                    $transaction->category,
+                    $transaction->student?->name_en,
+                    $transaction->batch?->name,
+                    $transaction->amount,
+                    $transaction->payment_method,
+                    $transaction->receipt_number,
+                    $transaction->description,
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
     public function create()
     {
         abort_if(Auth::user()->isTrainer(), 403, 'Trainers do not have access to Financial Transactions.');

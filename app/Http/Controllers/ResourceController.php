@@ -16,7 +16,11 @@ class ResourceController extends Controller
             ->orderBy('resource_name')
             ->get();
 
-        return view('resources.index', compact('resources'));
+        $courses = Course::where('institute_id', Auth::user()->institute_id)
+            ->where('status', 'active')
+            ->get();
+
+        return view('resources.index', compact('resources', 'courses'));
     }
 
     public function create()

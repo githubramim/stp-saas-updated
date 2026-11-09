@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center gap-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 gap-sm-3">
+            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight flex items-center gap-2 min-w-0">
                 <i class="bi bi-wallet2 text-primary"></i>
-                {{ __('Finance & Transactions') }}
+                <span class="truncate">{{ __('Finance & Transactions') }}</span>
             </h2>
-            <div class="d-flex gap-2">
+            <div class="d-flex flex-wrap gap-2">
                 <a href="{{ route('export.transactions') }}" class="btn btn-outline-success font-bold shadow-sm rounded-3">
                     <i class="bi bi-file-earmark-excel me-1"></i> 📥 Export CSV/Excel
                 </a>
@@ -67,7 +67,7 @@
                         </div>
                     @else
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 small datatable">
+                            <table class="table table-hover align-middle mb-0 small datatable" style="min-width: 720px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Date</th>
@@ -142,6 +142,7 @@
                 <form method="POST" action="{{ route('transactions.store') }}">
                     @csrf
                     <div class="modal-body p-4">
+                        @include('partials.modal-errors')
                         <div class="row g-3">
                             {{-- Type --}}
                             <div class="col-md-6">
@@ -253,6 +254,11 @@
     {{-- Interactive Modal JS --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            @if($errors->any() || request('create'))
+                var transactionModal = document.getElementById('createTransactionModal');
+                if (transactionModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(transactionModal).show();
+            @endif
+
             const catSelect = document.getElementById('modal_category_select');
             const customWrap = document.getElementById('modal_custom_category_wrapper');
             const customInput = document.getElementById('modal_custom_category');

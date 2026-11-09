@@ -20,7 +20,7 @@
                     <span class="text-xs text-gray-400 font-medium">Institute Code: {{ $institute->code }}</span>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                    <a href="{{ route('batches.create') }}" class="group bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-4 transition block">
+                    <a href="{{ route('batches.index', ['create' => 1]) }}" class="group bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center mb-2">
                             <i class="bi bi-collection-play text-xl"></i>
                         </div>
@@ -34,21 +34,21 @@
                         <div class="text-sm font-semibold text-gray-800">Review Applications</div>
                         <div class="text-xs text-gray-500">Approve / reject intake</div>
                     </a>
-                    <a href="{{ route('transactions.create') }}" class="group bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-xl p-4 transition block">
+                    <a href="{{ route('transactions.index', ['create' => 1]) }}" class="group bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-2">
                             <i class="bi bi-wallet2 text-xl"></i>
                         </div>
                         <div class="text-sm font-semibold text-gray-800">Record Income / Expense</div>
                         <div class="text-xs text-gray-500">Fee & expense entry</div>
                     </a>
-                    <a href="{{ route('notifications.create') }}" class="group bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl p-4 transition block">
+                    <a href="{{ route('notifications.index', ['create' => 1]) }}" class="group bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center mb-2">
                             <i class="bi bi-send text-xl"></i>
                         </div>
                         <div class="text-sm font-semibold text-gray-800">Send SMS Notice</div>
                         <div class="text-xs text-gray-500">Bulk / single alerts</div>
                     </a>
-                    <a href="{{ route('resources.create') }}" class="group bg-rose-50 hover:bg-rose-100 border border-rose-100 rounded-xl p-4 transition block">
+                    <a href="{{ route('resources.index', ['create' => 1]) }}" class="group bg-rose-50 hover:bg-rose-100 border border-rose-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-rose-500/10 text-rose-600 flex items-center justify-center mb-2">
                             <i class="bi bi-plus-circle text-xl"></i>
                         </div>
@@ -316,7 +316,7 @@
             @else
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
                     <p class="text-gray-400 mb-4">No projects yet. Create your first project to get started.</p>
-                    <a href="{{ route('projects.create') }}" class="btn btn-solid-indigo">+ Create Project</a>
+                    <a href="{{ route('projects.index', ['create' => 1]) }}" class="btn btn-solid-indigo">+ Create Project</a>
                 </div>
             @endif
 

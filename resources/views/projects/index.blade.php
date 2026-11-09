@@ -1,14 +1,14 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-lg font-semibold leading-tight text-slate-800">{{ __('Projects & Schemes') }}</h2>
                 <p class="text-xs text-slate-400">{{ __('Manage every project under your institute.') }}</p>
             </div>
-            <a href="{{ route('projects.create') }}" class="btn-solid-indigo" aria-label="{{ __('New Project') }}">
+            <button type="button" class="btn-solid-indigo" data-bs-toggle="modal" data-bs-target="#createProjectModal" aria-label="{{ __('New Project') }}">
                 <i class="bi bi-plus-lg"></i>
                 <span class="hidden sm:inline">{{ __('New Project') }}</span>
-            </a>
+            </button>
         </div>
     </x-slot>
 
@@ -23,10 +23,10 @@
                     <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
                         {{ __('Create your first project to organise courses, batches, admissions and students.') }}
                     </p>
-                    <a href="{{ route('projects.create') }}" class="btn-solid-indigo mt-5">
+                    <button type="button" class="btn-solid-indigo mt-5" data-bs-toggle="modal" data-bs-target="#createProjectModal">
                         <i class="bi bi-plus-lg"></i>
                         <span>{{ __('Create New Project') }}</span>
-                    </a>
+                    </button>
                 </div>
             @else
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -82,5 +82,62 @@
                 </div>
             @endif
         </div>
+    {{-- Create Project Modal --}}
+    <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-slate-900 text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold text-white flex items-center gap-2" id="createProjectModalLabel">
+                        <i class="bi bi-folder-plus text-indigo-400"></i> {{ __('New Project') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                </div>
+                <form method="POST" action="{{ route('projects.store') }}">
+                    @csrf
+                    <div class="modal-body p-4">
+                        @include('partials.modal-errors')
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="create_project_name" class="form-label fw-semibold text-slate-700 small">{{ __('Project Name (English)') }} *</label>
+                                <input id="create_project_name" type="text" name="name" value="{{ old('name') }}" required
+                                       class="form-control rounded-3" placeholder="{{ __('e.g. Skills for Tomorrow') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_name_bn" class="form-label fw-semibold text-slate-700 small">{{ __('Project Name (Bangla)') }}</label>
+                                <input id="create_project_name_bn" type="text" name="name_bn" value="{{ old('name_bn') }}"
+                                       class="form-control rounded-3" placeholder="{{ __('Optional') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_code" class="form-label fw-semibold text-slate-700 small">{{ __('Project Code') }}</label>
+                                <input id="create_project_code" type="text" name="code" value="{{ old('code') }}"
+                                       class="form-control rounded-3 font-monospace" placeholder="{{ __('e.g. ASSES') }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="create_project_description" class="form-label fw-semibold text-slate-700 small">{{ __('Description') }}</label>
+                                <textarea id="create_project_description" name="description" rows="3"
+                                          class="form-control rounded-3" placeholder="{{ __('Short description of this project...') }}">{{ old('description') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary rounded-3 font-semibold" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary rounded-3 font-bold px-4">
+                            <i class="bi bi-check-circle-fill me-1"></i> {{ __('Save Project') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if($errors->any() || request('create'))
+                    var modal = document.getElementById('createProjectModal');
+                    if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
+                @endif
+            });
+        </script>
+    @endpush
 </x-app-layout>

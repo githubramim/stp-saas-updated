@@ -72,4 +72,33 @@
     #app-main .table-responsive .table {
         @apply mb-0;
     }
+
+    /* Modernise the legacy Breeze card wrappers inside the new app shell. */
+    #app-main .bg-white.overflow-hidden.shadow-sm,
+    #app-main .bg-white.overflow-hidden.shadow-sm.sm\:rounded-lg {
+        @apply rounded-2xl border border-slate-200;
+    }
+
+    /* Keep a tighter, consistent vertical rhythm for legacy page wrappers. */
+    #app-main > .py-12,
+    #app-main > .py-8 {
+        @apply py-6;
+    }
+
+    /* Legacy plain tables should match the cards used elsewhere. */
+    #app-main .overflow-x-auto > table:not(.table) {
+        @apply min-w-full;
+    }
+
+    #app-main .overflow-x-auto > table:not(.table) thead tr {
+        @apply bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500;
+    }
+
+    #app-main .overflow-x-auto > table:not(.table) tbody {
+        @apply divide-y divide-slate-100;
+    }
+
+    #app-main .overflow-x-auto > table:not(.table) tbody tr {
+        @apply transition hover:bg-slate-50;
+    }
 }

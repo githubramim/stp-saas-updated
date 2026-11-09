@@ -33,7 +33,12 @@ class StudyMaterialController extends Controller
             ->where('project_id', $projectId)
             ->get();
 
-        return view('study-materials.index', compact('materials', 'courses'));
+        $batches = Batch::with('course')
+            ->where('institute_id', $instituteId)
+            ->where('project_id', $projectId)
+            ->get();
+
+        return view('study-materials.index', compact('materials', 'courses', 'batches'));
     }
 
     public function create()

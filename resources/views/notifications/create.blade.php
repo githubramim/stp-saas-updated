@@ -1,10 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Send New Notification / SMS') }}
-            </h2>
-            <a href="{{ route('notifications.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 transition">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight">{{ __('Send New Notification / SMS') }}</h2>
+            <a href="{{ route('notifications.index') }}" class="inline-flex shrink-0 items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 transition">
                 ← Back to Log History
             </a>
         </div>

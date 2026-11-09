@@ -1,9 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center gap-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 gap-sm-3">
+            <h2 class="font-semibold text-lg sm:text-xl text-gray-800 leading-tight flex items-center gap-2 min-w-0">
                 <i class="bi bi-laptop text-rose-600"></i>
-                {{ __('Lab & Resources') }}
+                <span class="truncate">{{ __('Lab & Resources') }}</span>
             </h2>
             <button type="button" class="btn btn-danger font-bold text-white shadow-sm rounded-3" data-bs-toggle="modal" data-bs-target="#createResourceModal">
                 <i class="bi bi-plus-circle-fill me-1"></i> + Add Resource
@@ -26,7 +26,7 @@
                         </div>
                     @else
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0 small datatable">
+                            <table class="table table-hover align-middle mb-0 small datatable" style="min-width: 640px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Code</th>
@@ -84,6 +84,7 @@
                 <form method="POST" action="{{ route('resources.store') }}">
                     @csrf
                     <div class="modal-body p-4">
+                        @include('partials.modal-errors')
                         <div class="row g-3">
                             {{-- Resource Code --}}
                             <div class="col-md-6">
@@ -124,4 +125,15 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if($errors->any() || request('create'))
+                    var resourceModal = document.getElementById('createResourceModal');
+                    if (resourceModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(resourceModal).show();
+                @endif
+            });
+        </script>
+    @endpush
 </x-app-layout>

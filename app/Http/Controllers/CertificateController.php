@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Certificate;
+use App\Models\Exam;
+use App\Models\Student;
 use Illuminate\Http\Request;
 
 class CertificateController extends Controller
@@ -10,12 +12,27 @@ class CertificateController extends Controller
     public function index()
     {
         $certificates = Certificate::with(['student', 'exam'])->latest()->paginate(20);
-        return view('certificates.index', compact('certificates'));
+
+        $instituteId = auth()->user()->institute_id;
+        $students = Student::where('institute_id', $instituteId)->orderBy('name_en')->get();
+        $exams = Exam::where('institute_id', $instituteId)->latest()->get();
+
+        return view('certificates.index', compact('certificates', 'students', 'exams'));
     }
 
     public function create()
     {
-        return view('certificates.create');
+        $instituteId = auth()->user()->institute_id;
+
+        $students = Student::where('institute_id', $instituteId)
+            ->orderBy('name_en')
+            ->get();
+
+        $exams = Exam::where('institute_id', $instituteId)
+            ->latest()
+            ->get();
+
+        return view('certificates.create', compact('students', 'exams'));
     }
 
     public function store(Request $request)

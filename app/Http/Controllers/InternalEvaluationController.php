@@ -21,7 +21,16 @@ class InternalEvaluationController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('evaluations.index', compact('evaluations'));
+        $batches = Batch::with('course')
+            ->where('institute_id', $instituteId)
+            ->where('project_id', $projectId)
+            ->get();
+
+        $trainers = User::where('institute_id', $instituteId)
+            ->where('role', 'trainer')
+            ->get();
+
+        return view('evaluations.index', compact('evaluations', 'batches', 'trainers'));
     }
 
     public function create()

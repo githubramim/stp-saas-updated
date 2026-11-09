@@ -25,7 +25,7 @@
             @include('layouts.sidebar')
 
             <div class="flex min-h-screen flex-col lg:pl-64">
-                <header class="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+                <header class="sticky top-0 z-30 flex min-h-[4rem] shrink-0 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-2 backdrop-blur sm:px-6">
                     <button type="button"
                             @click="sidebarOpen = true"
                             class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:hidden"
@@ -91,6 +91,18 @@
             </div>
         </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+                integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+                crossorigin="anonymous"></script>
+        <script>
+            function confirmDelete(event) {
+                if (!window.confirm('{{ __('Are you sure you want to delete this record? This action cannot be undone.') }}')) {
+                    if (event) event.preventDefault();
+                    return false;
+                }
+                return true;
+            }
+        </script>
         @stack('scripts')
     </body>
 </html>

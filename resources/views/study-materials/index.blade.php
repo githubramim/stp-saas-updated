@@ -31,7 +31,7 @@
                             <button type="submit" class="btn btn-outline-indigo">Filter</button>
                         </div>
                         <div class="ml-auto">
-                            <a href="{{ route('study-materials.create') }}" class="btn btn-solid-indigo">+ Upload Material</a>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#createStudyMaterialModal" class="btn btn-solid-indigo">+ Upload Material</button>
                         </div>
                     </form>
                 </div>
@@ -80,6 +80,79 @@
                     @endif
                 </div>
             </div>
+    {{-- Upload Study Material Modal --}}
+    <div class="modal fade" id="createStudyMaterialModal" tabindex="-1" aria-labelledby="createStudyMaterialModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-slate-900 text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold text-white flex items-center gap-2" id="createStudyMaterialModalLabel">
+                        <i class="bi bi-cloud-arrow-up text-fuchsia-400"></i> {{ __('Upload Study Material') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                </div>
+                <form method="POST" action="{{ route('study-materials.store') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body p-4">
+                        @include('partials.modal-errors')
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="create_material_title" class="form-label fw-semibold text-slate-700 small">{{ __('Title') }} *</label>
+                                <input id="create_material_title" type="text" name="title" value="{{ old('title') }}" required class="form-control rounded-3">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_material_course" class="form-label fw-semibold text-slate-700 small">{{ __('Course') }} *</label>
+                                <select id="create_material_course" name="course_id" required class="form-select rounded-3">
+                                    <option value="">— {{ __('Select Course') }} —</option>
+                                    @foreach($courses as $c)
+                                        <option value="{{ $c->id }}" @selected(old('course_id') == $c->id)>{{ $c->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_material_batch" class="form-label fw-semibold text-slate-700 small">{{ __('Batch (Optional)') }}</label>
+                                <select id="create_material_batch" name="batch_id" class="form-select rounded-3">
+                                    <option value="">{{ __('All Batches') }}</option>
+                                    @foreach($batches as $b)
+                                        <option value="{{ $b->id }}" @selected(old('batch_id') == $b->id)>{{ $b->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_material_module" class="form-label fw-semibold text-slate-700 small">{{ __('Module Name (Optional)') }}</label>
+                                <input id="create_material_module" type="text" name="module_name" value="{{ old('module_name') }}" class="form-control rounded-3">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_material_file" class="form-label fw-semibold text-slate-700 small">{{ __('File') }} *</label>
+                                <input id="create_material_file" type="file" name="file" required
+                                       accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                       class="form-control rounded-3">
+                                <p class="mt-1 text-xs text-slate-400">{{ __('PDF, DOC, PPT, XLS, JPG or PNG — max 20 MB.') }}</p>
+                            </div>
+                            <div class="col-12">
+                                <label for="create_material_description" class="form-label fw-semibold text-slate-700 small">{{ __('Description (Optional)') }}</label>
+                                <textarea id="create_material_description" name="description" rows="2" class="form-control rounded-3">{{ old('description') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary rounded-3 font-semibold" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary rounded-3 font-bold px-4">
+                            <i class="bi bi-check-circle-fill me-1"></i> {{ __('Upload Material') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                @if($errors->any() || request('create'))
+                    var modal = document.getElementById('createStudyMaterialModal');
+                    if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
+                @endif
+            });
+        </script>
+    @endpush
 </x-app-layout>

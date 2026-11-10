@@ -131,7 +131,37 @@
         }
         .signature-area .sig-block {
             text-align: center;
-            width: 160px;
+            width: 170px;
+        }
+        .signature-area .sig-block .sig-space {
+            height: 34px;
+        }
+        .signature-area .sig-block .sig-image {
+            height: 34px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .signature-area .sig-block .sig-image img {
+            max-width: 150px;
+            max-height: 32px;
+            object-fit: contain;
+        }
+        .signature-area .sig-block .seal {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 4px;
+            border: 1px dashed #94a3b8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 7px;
+            line-height: 1.15;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         .signature-area .sig-block .line {
             border-top: 1px solid #333;
@@ -311,21 +341,28 @@
 {{-- Physical Signature Area --}}
 <div class="signature-area">
     <div class="sig-block">
+        @if($student->signature_path)
+            <div class="sig-image"><img src="{{ asset('storage/' . $student->signature_path) }}" alt="Student Signature"></div>
+        @else
+            <div class="sig-space"></div>
+        @endif
         <div class="line">
-            আবেদনকারীর স্বাক্ষর<br>
-            <span style="font-size:8.5px;color:#64748b;font-weight:normal;">Applicant's Signature</span>
+            শিক্ষার্থীর স্বাক্ষর<br>
+            <span style="font-size:8.5px;color:#64748b;font-weight:normal;">Student's Signature</span>
         </div>
     </div>
     <div class="sig-block">
+        <div class="sig-space"></div>
         <div class="line">
             অভিভাবকের স্বাক্ষর<br>
             <span style="font-size:8.5px;color:#64748b;font-weight:normal;">Guardian's Signature</span>
         </div>
     </div>
     <div class="sig-block">
+        <div class="seal">Institute<br>Seal</div>
         <div class="line">
-            সত্যায়নকারী / কর্তৃপক্ষের স্বাক্ষর<br>
-            <span style="font-size:8.5px;color:#64748b;font-weight:normal;">Authorized Officer</span>
+            প্রতিষ্ঠানের স্বাক্ষর ও সিল<br>
+            <span style="font-size:8.5px;color:#64748b;font-weight:normal;">Institute's Signature &amp; Seal</span>
         </div>
     </div>
 </div>

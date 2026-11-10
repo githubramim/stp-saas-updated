@@ -29,11 +29,13 @@
             @else
                 <div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[720px] text-sm">
+                        <table class="w-full min-w-[980px] text-sm">
                             <thead>
                                 <tr class="border-b border-slate-100 bg-slate-50/80 text-left text-[11px] uppercase tracking-wide text-slate-400">
-                                    <th class="px-5 py-3 font-semibold">{{ __('Name') }}</th>
-                                    <th class="px-5 py-3 font-semibold">{{ __('Duration') }}</th>
+                                    <th class="px-5 py-3 font-semibold">{{ __('Course') }}</th>
+                                    <th class="px-5 py-3 font-semibold">{{ __('TAM Occupation') }}</th>
+                                    <th class="px-5 py-3 font-semibold">{{ __('Level') }}</th>
+                                    <th class="px-5 py-3 font-semibold">{{ __('Nominal Hours') }}</th>
                                     <th class="px-5 py-3 font-semibold">{{ __('Fee') }}</th>
                                     <th class="px-5 py-3 font-semibold">{{ __('Seats') }}</th>
                                     <th class="px-5 py-3 font-semibold">{{ __('Status') }}</th>
@@ -43,8 +45,29 @@
                             <tbody class="divide-y divide-slate-100">
                                 @foreach($courses as $c)
                                     <tr class="transition hover:bg-slate-50/70">
-                                        <td class="px-5 py-4 font-semibold text-slate-800">{{ $c->name }}</td>
-                                        <td class="px-5 py-4 text-slate-500">{{ $c->duration ?? '—' }}</td>
+                                        <td class="px-5 py-4">
+                                            <div class="font-semibold text-slate-800">{{ $c->name }}</div>
+                                            <div class="text-[11px] text-slate-400">{{ $c->course_code ?: ($c->duration ?: '—') }}</div>
+                                        </td>
+                                        <td class="px-5 py-4">
+                                            <div class="text-slate-700">{{ $c->tam_occupation ?: '—' }}</div>
+                                            <div class="text-[11px] text-slate-400">{{ $c->tam_sector }}</div>
+                                        </td>
+                                        <td class="px-5 py-4">
+                                            @if($c->ntvqf_level)
+                                                <span class="inline-flex rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">L{{ $c->ntvqf_level }}</span>
+                                            @else
+                                                <span class="text-slate-400">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-5 py-4">
+                                            @if($c->duration_hours)
+                                                <div class="font-semibold text-slate-700">{{ number_format($c->duration_hours) }} h</div>
+                                                <div class="text-[11px] text-slate-400">{{ $c->duration }}</div>
+                                            @else
+                                                <span class="text-slate-400">—</span>
+                                            @endif
+                                        </td>
                                         <td class="px-5 py-4 font-medium text-slate-700">৳{{ number_format($c->fee, 0) }}</td>
                                         <td class="px-5 py-4 text-slate-500">{{ $c->seat_capacity }}</td>
                                         <td class="px-5 py-4">
@@ -108,10 +131,66 @@
                                 <input id="create_course_name_bn" type="text" name="name_bn" value="{{ old('name_bn') }}"
                                        class="form-control rounded-3" placeholder="{{ __('Optional') }}">
                             </div>
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-3 bg-indigo-50 px-3 py-2">
+                                    <span class="d-flex align-items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-indigo-700">
+                                        <i class="bi bi-table"></i> {{ __('TAM List — Occupational Standard') }}
+                                    </span>
+                                    <span class="text-[11px] font-semibold text-indigo-500">
+                                        {{ __('Nominal hour auto-fills from Occupation + Level') }}
+                                    </span>
+                                </div>
+                                @unless($tamAvailable)
+                                    <div class="mt-2 rounded-3 border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-700">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        {{ __('TAM List spreadsheet not found. Place it at docs/TAM List.xlsx or set TAM_LIST_PATH.') }}
+                                    </div>
+                                @endunless
+                            </div>
                             <div class="col-md-6">
-                                <label for="create_course_duration" class="form-label fw-semibold text-slate-700 small">{{ __('Duration') }}</label>
+                                <label for="create_course_tam_occupation" class="form-label fw-semibold text-slate-700 small">{{ __('Occupation Name') }}</label>
+                                <select id="create_course_tam_occupation" name="tam_occupation" class="form-select rounded-3">
+                                    <option value="">{{ __('— Select occupation —') }}</option>
+                                    @foreach($tamOccupations as $occupation)
+                                        <option value="{{ $occupation }}" {{ old('tam_occupation') === $occupation ? 'selected' : '' }}>{{ $occupation }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_course_level" class="form-label fw-semibold text-slate-700 small">{{ __('NTVQF Level') }}</label>
+                                <select id="create_course_level" name="ntvqf_level" class="form-select rounded-3">
+                                    <option value="">{{ __('— Level —') }}</option>
+                                    @foreach($tamLevels as $level)
+                                        <option value="{{ $level }}" {{ (string) old('ntvqf_level') === (string) $level ? 'selected' : '' }}>{{ __('Level') }} {{ $level }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_course_sector" class="form-label fw-semibold text-slate-700 small">{{ __('Industrial Sector') }}</label>
+                                <select id="create_course_sector" name="tam_sector" class="form-select rounded-3">
+                                    <option value="">{{ __('— Auto —') }}</option>
+                                    @foreach($tamSectors as $sector)
+                                        <option value="{{ $sector }}" {{ old('tam_sector') === $sector ? 'selected' : '' }}>{{ $sector }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_course_hours" class="form-label fw-semibold text-slate-700 small">{{ __('Nominal Hour') }}</label>
+                                <input id="create_course_hours" type="number" name="duration_hours" min="0" value="{{ old('duration_hours') }}"
+                                       class="form-control rounded-3 bg-emerald-50" placeholder="{{ __('Auto') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="create_course_code" class="form-label fw-semibold text-slate-700 small">{{ __('Course Code') }}</label>
+                                <input id="create_course_code" type="text" name="course_code" value="{{ old('course_code') }}"
+                                       class="form-control rounded-3 font-monospace" placeholder="{{ __('e.g. CRS-001') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_course_duration" class="form-label fw-semibold text-slate-700 small">{{ __('Duration (display)') }}</label>
                                 <input id="create_course_duration" type="text" name="duration" value="{{ old('duration') }}"
-                                       class="form-control rounded-3" placeholder="{{ __('e.g. 6 months') }}">
+                                       class="form-control rounded-3" placeholder="{{ __('e.g. 360 hours') }}">
+                            </div>
+                            <div class="col-12">
+                                <div id="create_course_hint" class="form-text text-[11px] text-emerald-600"></div>
                             </div>
                             <div class="col-md-3">
                                 <label for="create_course_fee" class="form-label fw-semibold text-slate-700 small">{{ __('Fee (BDT)') }} *</label>
@@ -150,5 +229,6 @@
                 @endif
             });
         </script>
+        @include('courses.partials.tam-script', ['prefix' => 'create_course', 'nameFieldId' => 'create_course_name'])
     @endpush
 </x-app-layout>

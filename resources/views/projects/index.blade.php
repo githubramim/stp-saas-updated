@@ -92,7 +92,7 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                 </div>
-                <form method="POST" action="{{ route('projects.store') }}">
+                <form method="POST" action="{{ route('projects.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body p-4">
                         @include('partials.modal-errors')
@@ -111,6 +111,64 @@
                                 <label for="create_project_code" class="form-label fw-semibold text-slate-700 small">{{ __('Project Code') }}</label>
                                 <input id="create_project_code" type="text" name="code" value="{{ old('code') }}"
                                        class="form-control rounded-3 font-monospace" placeholder="{{ __('e.g. ASSES') }}">
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-2 rounded-3 bg-indigo-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-indigo-700">
+                                    <i class="bi bi-bank"></i> {{ __('Donor, Budget & MoU (Project-Based Training)') }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_donor_name" class="form-label fw-semibold text-slate-700 small">{{ __('Donor Name') }}</label>
+                                <input id="create_project_donor_name" type="text" name="donor_name" value="{{ old('donor_name') }}"
+                                       class="form-control rounded-3" placeholder="{{ __('e.g. World Bank / SEIP') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_donor_type" class="form-label fw-semibold text-slate-700 small">{{ __('Donor Type') }}</label>
+                                <select id="create_project_donor_type" name="donor_type" class="form-select rounded-3">
+                                    <option value="">{{ __('Select type') }}</option>
+                                    @foreach(['government' => 'Government', 'ngo' => 'NGO / Development Partner', 'corporate' => 'Corporate', 'other' => 'Other'] as $value => $label)
+                                        <option value="{{ $value }}" {{ old('donor_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_project_budget" class="form-label fw-semibold text-slate-700 small">{{ __('Budget (৳)') }}</label>
+                                <input id="create_project_budget" type="number" step="0.01" min="0" name="budget_amount" value="{{ old('budget_amount') }}"
+                                       class="form-control rounded-3" placeholder="0.00">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_project_target" class="form-label fw-semibold text-slate-700 small">{{ __('Target Trainees') }}</label>
+                                <input id="create_project_target" type="number" min="0" name="target_trainees" value="{{ old('target_trainees') }}"
+                                       class="form-control rounded-3" placeholder="0">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="create_project_mou_number" class="form-label fw-semibold text-slate-700 small">{{ __('MoU Number') }}</label>
+                                <input id="create_project_mou_number" type="text" name="mou_number" value="{{ old('mou_number') }}"
+                                       class="form-control rounded-3" placeholder="{{ __('MoU reference') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_start_date" class="form-label fw-semibold text-slate-700 small">{{ __('Start Date') }}</label>
+                                <input id="create_project_start_date" type="date" name="start_date" value="{{ old('start_date') }}" class="form-control rounded-3">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_end_date" class="form-label fw-semibold text-slate-700 small">{{ __('End Date') }}</label>
+                                <input id="create_project_end_date" type="date" name="end_date" value="{{ old('end_date') }}" class="form-control rounded-3">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_coordinator" class="form-label fw-semibold text-slate-700 small">{{ __('Coordinator Name') }}</label>
+                                <input id="create_project_coordinator" type="text" name="coordinator_name" value="{{ old('coordinator_name') }}"
+                                       class="form-control rounded-3" placeholder="{{ __('Project coordinator') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_coordinator_contact" class="form-label fw-semibold text-slate-700 small">{{ __('Coordinator Contact') }}</label>
+                                <input id="create_project_coordinator_contact" type="text" name="coordinator_contact" value="{{ old('coordinator_contact') }}"
+                                       class="form-control rounded-3" placeholder="{{ __('Phone / email') }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="create_project_mou_file" class="form-label fw-semibold text-slate-700 small">{{ __('MoU Document') }}</label>
+                                <input id="create_project_mou_file" type="file" name="mou_file" accept=".pdf,.jpg,.jpeg,.png"
+                                       class="form-control rounded-3">
+                                <div class="form-text text-[11px]">{{ __('PDF or image, up to 10 MB.') }}</div>
                             </div>
                             <div class="col-12">
                                 <label for="create_project_description" class="form-label fw-semibold text-slate-700 small">{{ __('Description') }}</label>

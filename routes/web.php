@@ -11,6 +11,7 @@ use App\Http\Controllers\ExamResultController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\InternalEvaluationController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PbtmController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ResourceController;
@@ -198,6 +199,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/dashboard', [ProjectController::class, 'dashboard'])->name('projects.dashboard');
     Route::resource('projects', ProjectController::class)->except(['create', 'show']);
 
+    // Project-Based Training Management (BRD module #20)
+    Route::prefix('pbtm')->name('pbtm.')->group(function () {
+        Route::get('/', [PbtmController::class, 'index'])->name('index');
+
+        Route::get('/trainees', [PbtmController::class, 'trainees'])->name('trainees');
+        Route::post('/trainees/{student}/status', [PbtmController::class, 'updateTraineeStatus'])->name('trainees.status');
+
+        Route::get('/stipends', [PbtmController::class, 'stipends'])->name('stipends');
+        Route::post('/stipends', [PbtmController::class, 'storeStipend'])->name('stipends.store');
+        Route::post('/stipends/{stipend}/pay', [PbtmController::class, 'payStipend'])->name('stipends.pay');
+        Route::delete('/stipends/{stipend}', [PbtmController::class, 'destroyStipend'])->name('stipends.destroy');
+
+        Route::get('/assets', [PbtmController::class, 'assets'])->name('assets');
+        Route::post('/assets', [PbtmController::class, 'storeAsset'])->name('assets.store');
+        Route::post('/assets/{asset}/return', [PbtmController::class, 'returnAsset'])->name('assets.return');
+        Route::delete('/assets/{asset}', [PbtmController::class, 'destroyAsset'])->name('assets.destroy');
+
+        Route::get('/placements', [PbtmController::class, 'placements'])->name('placements');
+        Route::post('/placements', [PbtmController::class, 'storePlacement'])->name('placements.store');
+        Route::delete('/placements/{placement}', [PbtmController::class, 'destroyPlacement'])->name('placements.destroy');
+
+        Route::get('/reports', [PbtmController::class, 'reports'])->name('reports');
+        Route::get('/reports.csv', [PbtmController::class, 'reportCsv'])->name('reports.csv');
+    });
+
+    Route::get('/courses/tam-lookup', [CourseController::class, 'tamLookup'])->name('courses.tam-lookup');
     Route::resource('courses', CourseController::class)->except(['create', 'show']);
     Route::resource('batches', BatchController::class)->except(['create', 'show']);
     Route::post('/projects/{project}/courses/inline-store', [CourseController::class, 'inlineStore'])->name('courses.inline-store');

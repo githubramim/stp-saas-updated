@@ -19,7 +19,7 @@
                     <h3 class="font-semibold text-gray-800">Quick Actions</h3>
                     <span class="text-xs text-gray-400 font-medium">Institute Code: {{ $institute->code }}</span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                     <a href="{{ route('batches.index', ['create' => 1]) }}" class="group bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center mb-2">
                             <i class="bi bi-collection-play text-xl"></i>
@@ -55,6 +55,15 @@
                         <div class="text-sm font-semibold text-gray-800">Add Resource</div>
                         <div class="text-xs text-gray-500">Lab equipment entry</div>
                     </a>
+                    @if(!Auth::user()->isTrainer())
+                        <a href="{{ route('pbtm.index') }}" class="group bg-sky-50 hover:bg-sky-100 border border-sky-100 rounded-xl p-4 transition block">
+                            <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-600 flex items-center justify-center mb-2">
+                                <i class="bi bi-diagram-3 text-xl"></i>
+                            </div>
+                            <div class="text-sm font-semibold text-gray-800">Project Training</div>
+                            <div class="text-xs text-gray-500">Donor, stipend & placement</div>
+                        </a>
+                    @endif
                 </div>
             </div>
 

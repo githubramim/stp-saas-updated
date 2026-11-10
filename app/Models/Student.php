@@ -13,7 +13,7 @@ class Student extends Model
         'name_en', 'name_bn', 'father_name_en', 'father_name_bn',
         'mother_name_en', 'mother_name_bn', 'contact', 'email',
         'dob', 'gender', 'religion', 'nationality', 'blood_group',
-        'id_type', 'id_no', 'occupation', 'guardian_contact', 'guardian_relation',
+        'id_type', 'id_no', 'occupation', 'ntvqf_level', 'guardian_contact', 'guardian_relation',
         'present_village', 'present_road', 'present_po', 'present_upazila',
         'present_district', 'present_division',
         'perm_village', 'perm_road', 'perm_po', 'perm_upazila',
@@ -64,6 +64,21 @@ class Student extends Model
     public function examResults(): HasMany
     {
         return $this->hasMany(ExamResult::class);
+    }
+
+    public function stipends(): HasMany
+    {
+        return $this->hasMany(Stipend::class);
+    }
+
+    public function projectAssets(): HasMany
+    {
+        return $this->hasMany(ProjectAsset::class);
+    }
+
+    public function jobPlacement(): HasMany
+    {
+        return $this->hasMany(JobPlacement::class);
     }
 
     /**

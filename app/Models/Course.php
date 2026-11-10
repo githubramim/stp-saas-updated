@@ -9,8 +9,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Course extends Model
 {
     protected $fillable = [
-        'institute_id', 'project_id', 'name', 'name_bn', 'duration', 'fee', 'seat_capacity', 'description', 'status',
+        'institute_id', 'project_id', 'name', 'name_bn', 'course_code', 'ntvqf_level',
+        'tam_sector', 'tam_occupation', 'duration', 'duration_hours', 'fee',
+        'seat_capacity', 'description', 'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'duration_hours' => 'integer',
+            'fee' => 'decimal:2',
+            'seat_capacity' => 'integer',
+        ];
+    }
 
     public function institute(): BelongsTo
     {

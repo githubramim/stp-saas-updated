@@ -79,6 +79,12 @@
                     <span class="item-text">{{ __('Projects') }}</span>
                 </a>
 
+                <!-- 2.1 Project-Based Training Management -->
+                <a href="{{ route('pbtm.index') }}" class="sidebar-item {{ request()->routeIs('pbtm.*') ? 'active' : '' }}">
+                    <i class="bi bi-diagram-3 item-icon text-sky-400"></i>
+                    <span class="item-text">{{ __('Project Training') }}</span>
+                </a>
+
                 <!-- 3. Courses -->
                 <a href="{{ route('courses.index') }}" class="sidebar-item {{ request()->routeIs('courses.*') ? 'active' : '' }}">
                     <i class="bi bi-journal-text item-icon text-teal-400"></i>

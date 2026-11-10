@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -34,20 +35,32 @@ class ProjectController extends Controller
     {
         abort_if(Auth::user()->isTrainer(), 403, 'Trainers do not have access to Master Projects.');
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'name_bn' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:50',
             'description' => 'nullable|string',
+            'donor_name' => 'nullable|string|max:255',
+            'donor_type' => 'nullable|string|max:50',
+            'budget_amount' => 'nullable|numeric|min:0',
+            'mou_number' => 'nullable|string|max:100',
+            'mou_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'target_trainees' => 'nullable|integer|min:0',
+            'coordinator_name' => 'nullable|string|max:255',
+            'coordinator_contact' => 'nullable|string|max:50',
         ]);
 
-        Project::create([
+        if ($request->hasFile('mou_file')) {
+            $validated['mou_file_path'] = $request->file('mou_file')->store('mou', 'public');
+        }
+
+        unset($validated['mou_file']);
+
+        Project::create(array_merge($validated, [
             'institute_id' => Auth::user()->institute_id,
-            'name' => $request->name,
-            'name_bn' => $request->name_bn,
-            'code' => $request->code,
-            'description' => $request->description,
-        ]);
+        ]));
 
         return redirect()->route('projects.index')->with('success', 'Project created successfully.');
     }
@@ -65,15 +78,34 @@ class ProjectController extends Controller
         abort_if(Auth::user()->isTrainer(), 403, 'Trainers do not have access to Master Projects.');
         abort_if($project->institute_id !== Auth::user()->institute_id, 403);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'name_bn' => 'nullable|string|max:255',
             'code' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'status' => 'required|string|in:active,inactive',
+            'donor_name' => 'nullable|string|max:255',
+            'donor_type' => 'nullable|string|max:50',
+            'budget_amount' => 'nullable|numeric|min:0',
+            'mou_number' => 'nullable|string|max:100',
+            'mou_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'target_trainees' => 'nullable|integer|min:0',
+            'coordinator_name' => 'nullable|string|max:255',
+            'coordinator_contact' => 'nullable|string|max:50',
         ]);
 
-        $project->update($request->only(['name', 'name_bn', 'code', 'description', 'status']));
+        if ($request->hasFile('mou_file')) {
+            if ($project->mou_file_path) {
+                Storage::disk('public')->delete($project->mou_file_path);
+            }
+            $validated['mou_file_path'] = $request->file('mou_file')->store('mou', 'public');
+        }
+
+        unset($validated['mou_file']);
+
+        $project->update($validated);
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }

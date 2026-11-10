@@ -42,6 +42,7 @@
                                             </td>
                                             <td class="p-3">
                                                 <a href="{{ route('admissions.show', $student) }}" class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200 transition-colors">View</a>
+                                                <a href="{{ route('admissions.print', $student) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded hover:bg-indigo-100 transition-colors">Print</a>
                                                 @if($student->status === 'applied')
                                                     <form action="{{ route('admissions.approve', $student) }}" method="POST" class="inline">
                                                         @csrf

@@ -53,6 +53,63 @@
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
+                        <div class="mt-6 rounded-xl bg-indigo-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-indigo-700">
+                            <i class="bi bi-table me-1"></i> TAM List — Occupational Standard
+                        </div>
+
+                        @unless($tamAvailable)
+                            <div class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700">
+                                TAM List spreadsheet not found. Place it at docs/TAM List.xlsx or set TAM_LIST_PATH.
+                            </div>
+                        @endunless
+
+                        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div class="sm:col-span-2">
+                                <x-input-label for="edit_course_tam_occupation" value="Occupation Name" />
+                                <select id="edit_course_tam_occupation" name="tam_occupation"
+                                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">— Select occupation —</option>
+                                    @foreach($tamOccupations as $occupation)
+                                        <option value="{{ $occupation }}" {{ old('tam_occupation', $course->tam_occupation) === $occupation ? 'selected' : '' }}>{{ $occupation }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('tam_occupation')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="edit_course_level" value="NTVQF Level" />
+                                <select id="edit_course_level" name="ntvqf_level"
+                                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">— Level —</option>
+                                    @foreach($tamLevels as $level)
+                                        <option value="{{ $level }}" {{ (string) old('ntvqf_level', $course->ntvqf_level) === (string) $level ? 'selected' : '' }}>Level {{ $level }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('ntvqf_level')" class="mt-2" />
+                            </div>
+                            <div class="sm:col-span-2">
+                                <x-input-label for="edit_course_sector" value="Industrial Sector" />
+                                <select id="edit_course_sector" name="tam_sector"
+                                        class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">— Auto —</option>
+                                    @foreach($tamSectors as $sector)
+                                        <option value="{{ $sector }}" {{ old('tam_sector', $course->tam_sector) === $sector ? 'selected' : '' }}>{{ $sector }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('tam_sector')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="edit_course_hours" value="Nominal Hour" />
+                                <x-text-input id="edit_course_hours" class="block mt-1 w-full bg-emerald-50" type="number" min="0" name="duration_hours" :value="old('duration_hours', $course->duration_hours)" placeholder="Auto" />
+                                <x-input-error :messages="$errors->get('duration_hours')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="edit_course_code" value="Course Code" />
+                                <x-text-input id="edit_course_code" class="block mt-1 w-full" type="text" name="course_code" :value="old('course_code', $course->course_code)" />
+                                <x-input-error :messages="$errors->get('course_code')" class="mt-2" />
+                            </div>
+                        </div>
+                        <div id="edit_course_hint" class="mt-2 text-[11px] text-emerald-600"></div>
+
                         <div class="flex items-center justify-end mt-6 gap-3">
                             <a href="{{ route('courses.index') }}" class="btn btn-outline-gray">Cancel</a>
                             <button type="submit" class="btn btn-solid-amber">Update Course</button>
@@ -62,4 +119,8 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        @include('courses.partials.tam-script', ['prefix' => 'edit_course', 'nameFieldId' => 'name'])
+    @endpush
 </x-app-layout>

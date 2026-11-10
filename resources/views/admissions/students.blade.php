@@ -20,6 +20,8 @@
                                     <tr class="border-b bg-gray-50">
                                         <th class="text-left p-3 font-medium">Name</th>
                                         <th class="text-left p-3 font-medium">Course</th>
+                                        <th class="text-left p-3 font-medium">Occupation</th>
+                                        <th class="text-left p-3 font-medium">Level</th>
                                         <th class="text-left p-3 font-medium">Batch</th>
                                         <th class="text-left p-3 font-medium">Contact</th>
                                         <th class="text-left p-3 font-medium">Change Batch</th>
@@ -31,6 +33,14 @@
                                         <tr class="border-b hover:bg-gray-50">
                                             <td class="p-3">{{ $student->name_en }}</td>
                                             <td class="p-3">{{ $student->course?->name ?? '—' }}</td>
+                                            <td class="p-3">{{ $student->course?->tam_occupation ?? $student->occupation ?? '—' }}</td>
+                                            <td class="p-3">
+                                                @if($student->ntvqf_level || $student->course?->ntvqf_level)
+                                                    <span class="inline-flex rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">L{{ $student->ntvqf_level ?: $student->course->ntvqf_level }}</span>
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
                                             <td class="p-3">{{ $student->batch?->name ?? '—' }}</td>
                                             <td class="p-3">{{ $student->contact }}</td>
                                             <td class="p-3">
@@ -45,6 +55,10 @@
                                                 </form>
                                             </td>
                                             <td class="p-3">
+                                                <a href="{{ route('admissions.print', $student) }}" target="_blank" rel="noopener"
+                                                   class="mr-2 inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-900">
+                                                    <i class="bi bi-printer"></i> Print
+                                                </a>
                                                 <form action="{{ route('admissions.remove-batch', $student) }}" method="POST" class="inline" onsubmit="return confirm('Remove from batch?')">
                                                     @csrf
                                                     <button type="submit" class="text-red-600 hover:text-red-900">Remove</button>

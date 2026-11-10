@@ -43,6 +43,10 @@
                         @if($project->description)
                             <p class="text-white/80 text-sm mt-2">{{ $project->description }}</p>
                         @endif
+                        <a href="{{ route('pbtm.index', ['project_id' => $project->id]) }}"
+                           class="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold text-white transition hover:bg-white/25">
+                            <i class="bi bi-diagram-3"></i> {{ __('Open Project Training Module') }}
+                        </a>
                     </div>
                     <span class="text-xs px-3 py-1.5 rounded-full {{ $project->status === 'active' ? 'bg-green-400/30 text-green-100' : 'bg-red-400/30 text-red-100' }}">
                         {{ ucfirst($project->status) }}

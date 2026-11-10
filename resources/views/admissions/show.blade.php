@@ -105,6 +105,10 @@
                                 <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Reject</button>
                             </form>
                         @endif
+                        <a href="{{ route('admissions.print', $student) }}" target="_blank" rel="noopener"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                            <i class="bi bi-printer"></i> Print Form
+                        </a>
                         <a href="{{ route('admissions.applications') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Back</a>
                     </div>
                 </div>

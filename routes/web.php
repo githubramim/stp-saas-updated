@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\CrmController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamResultController;
 use App\Http\Controllers\InstituteController;
@@ -190,7 +192,7 @@ Route::middleware('auth')->group(function () {
         ->whereIn('module', [
             'projects', 'courses', 'batches', 'attendance', 'exams', 'schedules',
             'transactions', 'study-materials', 'resources', 'certificates',
-            'notifications', 'notices', 'evaluations',
+            'notifications', 'notices', 'evaluations', 'accounts', 'crm',
         ]);
 
     // Projects
@@ -273,6 +275,49 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/export', [TransactionController::class, 'export'])->name('export.transactions');
     Route::get('/transactions/receipt/{transaction}', [TransactionController::class, 'receipt'])->name('transactions.receipt');
     Route::resource('transactions', TransactionController::class)->except(['create']);
+
+    // Accounts & Expense Management (daily expenses, salary sheets, P&L)
+    Route::prefix('accounts')->name('accounts.')->group(function () {
+        Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/expenses', [AccountController::class, 'expenses'])->name('expenses');
+        Route::post('/expenses', [AccountController::class, 'storeExpense'])->name('expenses.store');
+        Route::put('/expenses/{transaction}', [AccountController::class, 'updateExpense'])->name('expenses.update');
+        Route::delete('/expenses/{transaction}', [AccountController::class, 'destroyExpense'])->name('expenses.destroy');
+
+        Route::get('/salaries', [AccountController::class, 'salaries'])->name('salaries');
+        Route::post('/salaries/generate', [AccountController::class, 'generateSalaries'])->name('salaries.generate');
+        Route::post('/salaries/pay-all', [AccountController::class, 'payAllSalaries'])->name('salaries.pay-all');
+        Route::put('/salaries/{salarySheet}', [AccountController::class, 'updateSalary'])->name('salaries.update');
+        Route::post('/salaries/{salarySheet}/pay', [AccountController::class, 'paySalary'])->name('salaries.pay');
+        Route::post('/salaries/{salarySheet}/unpay', [AccountController::class, 'unpaySalary'])->name('salaries.unpay');
+        Route::delete('/salaries/{salarySheet}', [AccountController::class, 'destroySalary'])->name('salaries.destroy');
+
+        Route::get('/profit-loss', [AccountController::class, 'profitLoss'])->name('profit-loss');
+        Route::get('/profit-loss.csv', [AccountController::class, 'profitLossCsv'])->name('profit-loss.csv');
+    });
+
+    // Marketing & Lead Management (Mini CRM)
+    Route::prefix('crm')->name('crm.')->group(function () {
+        Route::get('/', [CrmController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/leads', [CrmController::class, 'leads'])->name('leads');
+        Route::post('/leads', [CrmController::class, 'storeLead'])->name('leads.store');
+        Route::get('/leads/export', [CrmController::class, 'exportCsv'])->name('leads.export');
+        Route::get('/leads/{lead}', [CrmController::class, 'showLead'])->name('leads.show');
+        Route::put('/leads/{lead}', [CrmController::class, 'updateLead'])->name('leads.update');
+        Route::patch('/leads/{lead}/status', [CrmController::class, 'updateStatus'])->name('leads.status');
+        Route::delete('/leads/{lead}', [CrmController::class, 'destroyLead'])->name('leads.destroy');
+        Route::post('/leads/{lead}/convert', [CrmController::class, 'convert'])->name('leads.convert');
+        Route::post('/leads/{lead}/messages', [CrmController::class, 'sendMessage'])->name('messages.store');
+
+        Route::post('/leads/{lead}/follow-ups', [CrmController::class, 'storeFollowUp'])->name('follow-ups.store');
+        Route::post('/follow-ups/{followUp}/complete', [CrmController::class, 'completeFollowUp'])->name('follow-ups.complete');
+        Route::post('/follow-ups/{followUp}/reschedule', [CrmController::class, 'rescheduleFollowUp'])->name('follow-ups.reschedule');
+        Route::delete('/follow-ups/{followUp}', [CrmController::class, 'destroyFollowUp'])->name('follow-ups.destroy');
+
+        Route::get('/reminders', [CrmController::class, 'reminders'])->name('reminders');
+    });
 
     // Study Materials
     Route::get('/study-materials/{studyMaterial}/download', [StudyMaterialController::class, 'download'])->name('study-materials.download');

@@ -477,8 +477,10 @@
 
 <script>
 function togglePermanent() {
-    const checked = document.getElementById('same_as_present').checked;
-    document.getElementById('permanent_address').style.display = checked ? 'none' : 'block';
+    const checkbox = document.getElementById('same_as_present');
+    const permanent = document.getElementById('permanent_address');
+    if (!checkbox || !permanent) return;
+    permanent.style.display = checkbox.checked ? 'none' : 'block';
 }
 document.addEventListener('DOMContentLoaded', togglePermanent);
 </script>

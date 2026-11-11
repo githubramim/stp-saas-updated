@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
     @vite(['resources/css/app.css', 'resources/js/apply.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
@@ -24,5 +25,17 @@
 
         @yield('content')
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script>
+        document.querySelectorAll('input[type="date"]').forEach(function (input) {
+            flatpickr(input, {
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+                disableMobile: true,
+                maxDate: 'today'
+            });
+        });
+    </script>
 </body>
 </html>

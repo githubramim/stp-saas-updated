@@ -36,7 +36,8 @@
                     </div>
                 @else
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[680px] text-left text-sm">
+                        <table class="w-full min-w-[680px] text-left text-sm datatable"
+                               data-dt-paging="false" data-dt-searching="false" data-dt-info="false">
                             <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                                 <tr>
                                     <th class="px-4 py-3">No</th>

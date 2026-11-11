@@ -17,6 +17,11 @@
               crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
+        <!-- DataTables + flatpickr (list tables and date fields) -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/style.css">
+
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
     </head>
@@ -94,6 +99,133 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
                 crossorigin="anonymous"></script>
+
+        <!-- DataTables needs jQuery; load it only for the admin shell. -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/index.js"></script>
+
+        <script>
+            (function () {
+                function initDataTables() {
+                    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) {
+                        return;
+                    }
+
+                    var $ = window.jQuery;
+
+                    $('table.datatable').each(function () {
+                        if ($.fn.DataTable.isDataTable(this)) {
+                            return;
+                        }
+
+                        var $table = $(this);
+                        var paging = $table.data('dtPaging') !== false;
+                        var searching = $table.data('dtSearching') !== false;
+                        var info = $table.data('dtInfo') !== false && paging;
+                        var pageLength = parseInt($table.data('dtPageLength'), 10) || 25;
+
+                        $table.DataTable({
+                            pageLength: pageLength,
+                            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                            order: [],
+                            autoWidth: false,
+                            paging: paging,
+                            searching: searching,
+                            info: info,
+                            language: {
+                                search: '',
+                                searchPlaceholder: '{{ __('Search…') }}',
+                                lengthMenu: '{{ __('Show _MENU_ entries') }}',
+                                info: '{{ __('Showing _START_ to _END_ of _TOTAL_ entries') }}',
+                                infoEmpty: '{{ __('No entries') }}',
+                                infoFiltered: '{{ __('(filtered from _MAX_ total entries)') }}',
+                                zeroRecords: '{{ __('No matching records found') }}',
+                                emptyTable: '{{ __('No records available') }}',
+                                paginate: {
+                                    previous: '&lsaquo;',
+                                    next: '&rsaquo;'
+                                }
+                            }
+                        });
+                    });
+                }
+
+                function initDatePickers(root) {
+                    if (!window.flatpickr) {
+                        return;
+                    }
+
+                    var scope = root || document;
+                    var monthPlugin = window.monthSelectPlugin
+                        ? [new window.monthSelectPlugin({ shorthand: false, dateFormat: 'Y-m', altFormat: 'F Y' })]
+                        : null;
+
+                    scope.querySelectorAll('input[type="date"], input[data-datepicker]').forEach(function (input) {
+                        if (input.dataset.pluginReady === '1' || input.disabled || input.dataset.noDatepicker !== undefined) {
+                            return;
+                        }
+
+                        flatpickr(input, {
+                            dateFormat: 'Y-m-d',
+                            allowInput: true,
+                            disableMobile: true
+                        });
+                        input.dataset.pluginReady = '1';
+                    });
+
+                    scope.querySelectorAll('input[type="datetime-local"], input[data-datetimepicker]').forEach(function (input) {
+                        if (input.dataset.pluginReady === '1' || input.disabled || input.dataset.noDatepicker !== undefined) {
+                            return;
+                        }
+
+                        flatpickr(input, {
+                            enableTime: true,
+                            time_24hr: true,
+                            dateFormat: 'Y-m-d\\TH:i',
+                            allowInput: true,
+                            disableMobile: true
+                        });
+                        input.dataset.pluginReady = '1';
+                    });
+
+                    if (monthPlugin) {
+                        scope.querySelectorAll('input[type="month"], input[data-monthpicker]').forEach(function (input) {
+                            if (input.dataset.pluginReady === '1' || input.disabled || input.dataset.noDatepicker !== undefined) {
+                                return;
+                            }
+
+                            flatpickr(input, {
+                                plugins: monthPlugin,
+                                allowInput: true,
+                                disableMobile: true
+                            });
+                            input.dataset.pluginReady = '1';
+                        });
+                    }
+                }
+
+                function initPlugins() {
+                    initDataTables();
+                    initDatePickers();
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initPlugins);
+                } else {
+                    initPlugins();
+                }
+
+                // Bootstrap modals can be opened more than once; run the same
+                // initialisation on the modal contents each time it is shown.
+                document.addEventListener('shown.bs.modal', function (event) {
+                    initDatePickers(event.target);
+                });
+            })();
+        </script>
+
         <script>
             function confirmDelete(event) {
                 if (!window.confirm('{{ __('Are you sure you want to delete this record? This action cannot be undone.') }}')) {

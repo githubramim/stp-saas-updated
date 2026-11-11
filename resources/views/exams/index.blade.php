@@ -65,7 +65,8 @@
                     </div>
                 @else
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[900px] text-sm">
+                        <table class="w-full min-w-[900px] text-sm datatable"
+                               data-dt-paging="false" data-dt-searching="false" data-dt-info="false">
                             <thead>
                                 <tr class="border-b bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-400">
                                     <th class="p-3 font-semibold">{{ __('Exam') }}</th>

@@ -19,7 +19,7 @@
                     <h3 class="font-semibold text-gray-800">Quick Actions</h3>
                     <span class="text-xs text-gray-400 font-medium">Institute Code: {{ $institute->code }}</span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                     <a href="{{ route('batches.index', ['create' => 1]) }}" class="group bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center mb-2">
                             <i class="bi bi-collection-play text-xl"></i>
@@ -41,6 +41,22 @@
                         <div class="text-sm font-semibold text-gray-800">Record Income / Expense</div>
                         <div class="text-xs text-gray-500">Fee & expense entry</div>
                     </a>
+                    @if(!Auth::user()->isTrainer())
+                        <a href="{{ route('accounts.dashboard') }}" class="group bg-lime-50 hover:bg-lime-100 border border-lime-100 rounded-xl p-4 transition block">
+                            <div class="w-10 h-10 rounded-lg bg-lime-500/10 text-lime-600 flex items-center justify-center mb-2">
+                                <i class="bi bi-bar-chart-line text-xl"></i>
+                            </div>
+                            <div class="text-sm font-semibold text-gray-800">Accounts & P&amp;L</div>
+                            <div class="text-xs text-gray-500">Expenses, payroll & profit</div>
+                        </a>
+                        <a href="{{ route('crm.dashboard') }}" class="group bg-orange-50 hover:bg-orange-100 border border-orange-100 rounded-xl p-4 transition block">
+                            <div class="w-10 h-10 rounded-lg bg-orange-500/10 text-orange-600 flex items-center justify-center mb-2">
+                                <i class="bi bi-funnel text-xl"></i>
+                            </div>
+                            <div class="text-sm font-semibold text-gray-800">Leads &amp; CRM</div>
+                            <div class="text-xs text-gray-500">Pipeline, follow-ups &amp; WhatsApp</div>
+                        </a>
+                    @endif
                     <a href="{{ route('notifications.index', ['create' => 1]) }}" class="group bg-violet-50 hover:bg-violet-100 border border-violet-100 rounded-xl p-4 transition block">
                         <div class="w-10 h-10 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center mb-2">
                             <i class="bi bi-send text-xl"></i>

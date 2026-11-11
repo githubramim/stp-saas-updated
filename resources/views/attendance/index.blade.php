@@ -55,7 +55,8 @@
                         <p class="text-gray-500 text-center py-8">No attendance sessions yet.</p>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
+                            <table class="w-full text-sm datatable"
+                                   data-dt-paging="false" data-dt-searching="false" data-dt-info="false">
                                 <thead>
                                     <tr class="border-b bg-gray-50">
                                         <th class="text-left p-3 font-medium">Date</th>

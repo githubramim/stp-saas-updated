@@ -54,7 +54,7 @@
                         <p class="text-gray-500 text-center py-8">No attendance sessions were held in {{ $month->format('F Y') }}.</p>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
+                            <table class="w-full text-sm datatable" data-dt-page-length="25">
                                 <thead>
                                     <tr class="border-b bg-gray-50">
                                         <th class="text-left p-3 font-medium">Registration No</th>

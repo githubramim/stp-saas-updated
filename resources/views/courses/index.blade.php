@@ -29,7 +29,7 @@
             @else
                 <div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[980px] text-sm">
+                        <table class="w-full min-w-[980px] text-sm datatable" data-dt-page-length="20">
                             <thead>
                                 <tr class="border-b border-slate-100 bg-slate-50/80 text-left text-[11px] uppercase tracking-wide text-slate-400">
                                     <th class="px-5 py-3 font-semibold">{{ __('Course') }}</th>

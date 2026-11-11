@@ -87,7 +87,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 small" style="min-width: 860px;">
+                    <table class="table table-hover align-middle mb-0 small datatable" style="min-width: 860px;" data-dt-page-length="25">
                         <thead class="table-light">
                             <tr>
                                 <th>{{ $view === 'quarterly' ? __('Quarter') : __('Month') }}</th>

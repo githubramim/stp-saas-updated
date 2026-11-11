@@ -99,6 +99,12 @@
             </a>
 
             @if(!$isTrainer)
+                <!-- 4.1 Leads & CRM -->
+                <a href="{{ route('crm.dashboard') }}" class="sidebar-item {{ request()->routeIs('crm.*') ? 'active' : '' }}">
+                    <i class="bi bi-funnel item-icon text-orange-400"></i>
+                    <span class="item-text">{{ __('Leads & CRM') }}</span>
+                </a>
+
                 <!-- 5. Applications -->
                 <a href="{{ route('admissions.applications') }}" class="sidebar-item {{ request()->routeIs('admissions.applications') ? 'active' : '' }}">
                     <i class="bi bi-file-earmark-person item-icon text-amber-400"></i>
@@ -140,6 +146,12 @@
                 <a href="{{ route('transactions.index') }}" class="sidebar-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
                     <i class="bi bi-wallet2 item-icon text-emerald-400"></i>
                     <span class="item-text">{{ __('Finance') }}</span>
+                </a>
+
+                <!-- 8.1 Accounts & P&L -->
+                <a href="{{ route('accounts.dashboard') }}" class="sidebar-item {{ request()->routeIs('accounts.*') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart-line item-icon text-lime-400"></i>
+                    <span class="item-text">{{ __('Accounts & P&L') }}</span>
                 </a>
             @endif
 

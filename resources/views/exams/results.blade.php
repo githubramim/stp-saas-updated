@@ -58,7 +58,7 @@
                         </p>
                     @else
                         <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
+                            <table class="w-full text-sm datatable" data-dt-page-length="25">
                                 <thead>
                                     <tr class="border-b bg-gray-50">
                                         <th class="text-center p-3 font-medium">Merit</th>

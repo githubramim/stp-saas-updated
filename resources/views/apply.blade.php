@@ -473,6 +473,44 @@
             </button>
         </form>
     </div>
+
+    {{-- Photo crop modal --}}
+    <div id="photo_modal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-semibold text-gray-900 text-sm">Crop Photo <span class="text-gray-400 font-normal">(300 × 300)</span></h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600 text-2xl leading-none close-photo_modal">&times;</button>
+            </div>
+            <div class="p-4 bg-gray-50">
+                <div class="w-full h-[55vh] max-h-[460px] min-h-[260px]">
+                    <img id="photo_cropper_image" class="block max-w-full max-h-full mx-auto" src="" alt="Crop photo">
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                <button type="button" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 close-photo_modal">Cancel</button>
+                <button type="button" class="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 crop-photo_modal">Crop &amp; Save</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Signature crop modal --}}
+    <div id="signature_modal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-semibold text-gray-900 text-sm">Crop Signature <span class="text-gray-400 font-normal">(300 × 80)</span></h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600 text-2xl leading-none close-signature_modal">&times;</button>
+            </div>
+            <div class="p-4 bg-gray-50">
+                <div class="w-full h-[30vh] max-h-[260px] min-h-[160px]">
+                    <img id="signature_cropper_image" class="block max-w-full max-h-full mx-auto" src="" alt="Crop signature">
+                </div>
+            </div>
+            <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-end gap-2">
+                <button type="button" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 close-signature_modal">Cancel</button>
+                <button type="button" class="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 crop-signature_modal">Crop &amp; Save</button>
+            </div>
+        </div>
+    </div>
 @endif
 
 <script>

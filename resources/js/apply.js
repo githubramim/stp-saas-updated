@@ -4,75 +4,106 @@ import Alpine from 'alpinejs';
 window.Alpine = Alpine;
 Alpine.start();
 
-function initCropper(inputId, modalId, previewId, hiddenId, ratio, targetW, targetH) {
+const JPEG_QUALITY = 0.9;
+
+function initCropper({
+    inputId,
+    modalId,
+    imageId,
+    previewId,
+    placeholderId,
+    hiddenId,
+    aspectRatio,
+    outputWidth,
+    outputHeight,
+}) {
     const input = document.getElementById(inputId);
-    if (!input) return;
+    const modal = document.getElementById(modalId);
+    const image = document.getElementById(imageId);
+    if (!input || !modal || !image) return;
+
+    const hidden = document.getElementById(hiddenId);
+    const preview = document.getElementById(previewId);
+    const placeholder = placeholderId ? document.getElementById(placeholderId) : null;
+    const cropButton = modal.querySelector(`.crop-${modalId}`);
+    const closeButtons = modal.querySelectorAll(`.close-${modalId}`);
 
     let cropper = null;
-    let modal = null;
 
-    function createModal() {
-        const div = document.createElement('div');
-        div.innerHTML = `
-            <div id="${modalId}" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 hidden">
-                <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 overflow-hidden">
-                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="font-semibold text-gray-900">Crop Image</h3>
-                        <button type="button" class="text-gray-400 hover:text-gray-600 text-2xl leading-none close-${modalId}">&times;</button>
-                    </div>
-                    <div class="p-4">
-                        <img class="cropper-image-${modalId} max-w-full" src="" alt="Crop">
-                    </div>
-                    <div class="p-4 border-t border-gray-100 flex justify-end gap-2">
-                        <button type="button" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 close-${modalId}">Cancel</button>
-                        <button type="button" class="px-6 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 crop-${modalId}">Crop & Save</button>
-                    </div>
-                </div>
-            </div>`;
-        document.body.appendChild(div.firstElementChild);
-    }
+    const destroyCropper = () => {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    };
 
-    input.addEventListener('change', (e) => {
-        const file = e.target.files[0];
+    const open = () => {
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    };
+
+    const close = () => {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        destroyCropper();
+        image.removeAttribute('src');
+        input.value = '';
+    };
+
+    closeButtons.forEach((button) => button.addEventListener('click', () => close()));
+
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) close();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) close();
+    });
+
+    cropButton?.addEventListener('click', () => {
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: outputWidth,
+            height: outputHeight,
+            fillColor: '#ffffff',
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+        if (!canvas) return;
+
+        const dataUrl = canvas.toDataURL('image/jpeg', JPEG_QUALITY);
+
+        if (hidden) hidden.value = dataUrl;
+        if (preview) {
+            preview.src = dataUrl;
+            preview.classList.remove('hidden');
+        }
+        if (placeholder) placeholder.classList.add('hidden');
+
+        close();
+    });
+
+    input.addEventListener('change', (event) => {
+        const file = event.target.files?.[0];
         if (!file) return;
 
-        if (!modal) {
-            createModal();
-            modal = document.getElementById(modalId);
-            modal.querySelectorAll(`.close-${modalId}`).forEach(el => {
-                el.addEventListener('click', () => {
-                    modal.classList.add('hidden');
-                    input.value = '';
-                });
-            });
-            modal.querySelector(`.crop-${modalId}`).addEventListener('click', () => {
-                if (!cropper) return;
-                const canvas = cropper.getCroppedCanvas({ width: targetW, height: targetH });
-                const hidden = document.getElementById(hiddenId);
-                if (hidden) hidden.value = canvas.toDataURL('image/jpeg', 0.9);
-                const preview = document.getElementById(previewId);
-                if (preview) {
-                    preview.src = canvas.toDataURL('image/jpeg', 0.9);
-                    preview.classList.remove('hidden');
-                }
-                const placeholder = document.getElementById(previewId.replace('preview', 'placeholder'));
-                if (placeholder) placeholder.classList.add('hidden');
-                modal.classList.add('hidden');
-                if (cropper) { cropper.destroy(); cropper = null; }
-            });
-        }
-
         const reader = new FileReader();
-        reader.onload = (e) => {
-            modal.classList.remove('hidden');
-            const img = modal.querySelector(`.cropper-image-${modalId}`);
-            img.src = e.target.result;
-            if (cropper) cropper.destroy();
-            cropper = new Cropper(img, {
-                aspectRatio: ratio,
+        reader.onload = (loadEvent) => {
+            destroyCropper();
+            image.src = loadEvent.target.result;
+            open();
+
+            cropper = new Cropper(image, {
+                aspectRatio,
                 viewMode: 1,
-                autoCropArea: 1,
+                autoCropArea: 0.9,
+                dragMode: 'move',
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
                 responsive: true,
+                background: false,
             });
         };
         reader.readAsDataURL(file);
@@ -80,6 +111,27 @@ function initCropper(inputId, modalId, previewId, hiddenId, ratio, targetW, targ
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initCropper('photo_input', 'photo_modal', 'photo_preview', 'photo_base64', 1, 300, 300);
-    initCropper('signature_input', 'signature_modal', 'signature_preview', 'signature_base64', 300 / 80, 300, 80);
+    initCropper({
+        inputId: 'photo_input',
+        modalId: 'photo_modal',
+        imageId: 'photo_cropper_image',
+        previewId: 'photo_preview',
+        placeholderId: 'photo_placeholder',
+        hiddenId: 'photo_base64',
+        aspectRatio: 1,
+        outputWidth: 300,
+        outputHeight: 300,
+    });
+
+    initCropper({
+        inputId: 'signature_input',
+        modalId: 'signature_modal',
+        imageId: 'signature_cropper_image',
+        previewId: 'signature_preview',
+        placeholderId: 'signature_placeholder',
+        hiddenId: 'signature_base64',
+        aspectRatio: 300 / 80,
+        outputWidth: 300,
+        outputHeight: 80,
+    });
 });

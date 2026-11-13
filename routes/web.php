@@ -10,6 +10,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamResultController;
+use App\Http\Controllers\IdCardController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\InternalEvaluationController;
 use App\Http\Controllers\NotificationController;
@@ -56,6 +57,11 @@ Route::post('/portal/evaluation/store', [StudentPortalController::class, 'submit
 // Public QR self-attendance landing page (BRD module #10)
 Route::get('/attendance/scan/{token}', [AttendanceController::class, 'scanForm'])->name('attendance.scan');
 Route::post('/attendance/scan/{token}', [AttendanceController::class, 'scanStore'])->name('attendance.scan.store');
+
+// Public ID card profile reached by scanning the QR printed on a card (BRD module #19)
+Route::get('/id-card/{type}/{id}/{token}', [IdCardController::class, 'profile'])
+    ->whereIn('type', ['student', 'employee'])
+    ->name('id-cards.profile');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
@@ -191,7 +197,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/{module}/create', fn () => abort(404))
         ->whereIn('module', [
             'projects', 'courses', 'batches', 'attendance', 'exams', 'schedules',
-            'transactions', 'study-materials', 'resources', 'certificates',
+            'transactions', 'study-materials', 'resources', 'certificates', 'id-cards',
             'notifications', 'notices', 'evaluations', 'accounts', 'crm',
         ]);
 
@@ -327,6 +333,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('resources', ResourceController::class)->except(['create', 'show']);
     Route::resource('certificates', CertificateController::class)->except(['create']);
 
+    // Student & Employee ID Card Generator (BRD module #19)
+    Route::get('/id-cards', [IdCardController::class, 'index'])->name('id-cards.index');
+    Route::get('/id-cards/editor', [IdCardController::class, 'editor'])->name('id-cards.editor');
+    Route::put('/id-cards/editor', [IdCardController::class, 'updateDesign'])->name('id-cards.editor.update');
+    Route::get('/id-cards/print', [IdCardController::class, 'printCards'])->name('id-cards.print');
+    Route::post('/id-cards/{type}/{person}/photo', [IdCardController::class, 'uploadPhoto'])
+        ->whereIn('type', ['student', 'employee'])
+        ->name('id-cards.photo');
 
     // Notifications
     Route::post('/notifications/send-single', [NotificationController::class, 'sendSingle'])->name('notifications.send-single');

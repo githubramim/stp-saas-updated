@@ -141,6 +141,12 @@
                 <span class="item-text">{{ __('Certificates') }}</span>
             </a>
 
+            <!-- 7.3 Student & Employee ID Cards -->
+            <a href="{{ route('id-cards.index') }}" class="sidebar-item {{ request()->routeIs('id-cards.*') ? 'active' : '' }}">
+                <i class="bi bi-person-vcard item-icon text-teal-400"></i>
+                <span class="item-text">{{ __('ID Cards') }}</span>
+            </a>
+
             @if(!$isTrainer)
                 <!-- 8. Finance -->
                 <a href="{{ route('transactions.index') }}" class="sidebar-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">

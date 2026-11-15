@@ -56,10 +56,10 @@ Route::get('/', function () {
 });
 
 Route::get('/apply', [StudentController::class, 'showForm'])->name('apply');
+Route::get('/apply/courses/{institute}', [StudentController::class, 'getCourses'])->name('apply.courses');
+Route::get('/apply/batches/{course}', [StudentController::class, 'getBatches'])->name('apply.batches');
 Route::post('/apply/store', [StudentController::class, 'store'])->name('apply.store');
 Route::get('/apply/success/{referenceNo}', [StudentController::class, 'success'])->name('apply.success');
-Route::get('/api/courses', [StudentController::class, 'getCourses'])->name('api.courses');
-Route::get('/api/batches', [StudentController::class, 'getBatches'])->name('api.batches');
 
 // Public Student Portal
 Route::get('/portal', [StudentPortalController::class, 'index'])->name('portal.index');

@@ -12,35 +12,26 @@ use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
-    public function showForm(Request $request)
+    public function showForm()
     {
         $institutes = Institute::where('status', 'active')->get();
-        $courses = collect();
-        $batches = collect();
 
-        if ($request->institute_id) {
-            $courses = Course::where('institute_id', $request->institute_id)
-                ->where('status', 'active')->get();
-        }
-        if ($request->course_id) {
-            $batches = Batch::where('course_id', $request->course_id)
-                ->where('status', 'active')->get();
-        }
-
-        return view('apply', compact('institutes', 'courses', 'batches'));
+        return view('apply', compact('institutes'));
     }
 
-    public function getCourses(Request $request)
+    public function getCourses(Institute $institute)
     {
-        $courses = Course::where('institute_id', $request->institute_id)
+        $courses = Course::where('institute_id', $institute->id)
             ->where('status', 'active')->get(['id', 'name']);
+
         return response()->json($courses);
     }
 
-    public function getBatches(Request $request)
+    public function getBatches(Course $course)
     {
-        $batches = Batch::where('course_id', $request->course_id)
-            ->where('status', 'active')->get(['id', 'name']);
+        $batches = Batch::where('course_id', $course->id)
+            ->where('status', 'active')->get(['id', 'name', 'shift']);
+
         return response()->json($batches);
     }
 
@@ -78,7 +69,7 @@ class StudentController extends Controller
         $batch = Batch::findOrFail($request->batch_id);
         abort_if($batch->course_id != $request->course_id, 400);
 
-        $referenceNo = 'STP-' . strtoupper(Str::random(8));
+        $referenceNo = 'STP-'.strtoupper(Str::random(8));
 
         $data = $request->except(['_token', 'photo_base64', 'signature_base64', 'nid_base64', 'nid_file']);
         $data['reference_no'] = $referenceNo;
@@ -98,14 +89,18 @@ class StudentController extends Controller
 
     private function saveBase64Image(?string $base64, string $folder, int $maxW, int $maxH): ?string
     {
-        if (!$base64) return null;
+        if (! $base64) {
+            return null;
+        }
 
         if (str_starts_with($base64, 'data:image')) {
             $base64 = substr($base64, strpos($base64, ',') + 1);
         }
 
         $imageData = base64_decode($base64);
-        if ($imageData === false) return null;
+        if ($imageData === false) {
+            return null;
+        }
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mime = finfo_buffer($finfo, $imageData);
@@ -118,8 +113,8 @@ class StudentController extends Controller
             default => 'jpg',
         };
 
-        $filename = Str::random(20) . '.' . $ext;
-        $path = $folder . '/' . $filename;
+        $filename = Str::random(20).'.'.$ext;
+        $path = $folder.'/'.$filename;
 
         Storage::disk('public')->put($path, $imageData);
 

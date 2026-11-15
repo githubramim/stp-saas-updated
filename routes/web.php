@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdmissionController;
-use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BatchController;
 use App\Http\Controllers\CertificateController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\ExamResultController;
 use App\Http\Controllers\IdCardController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\InternalEvaluationController;
+use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PbtmController;
 use App\Http\Controllers\ProfileController;
@@ -331,6 +331,11 @@ Route::middleware('auth')->group(function () {
 
     // Resources
     Route::resource('resources', ResourceController::class)->except(['create', 'show']);
+
+    // Certificate bulk upload. These must be registered before the resource
+    // routes so /certificates/bulk-template is not captured by show().
+    Route::get('/certificates/bulk-template', [CertificateController::class, 'bulkTemplate'])->name('certificates.bulk-template');
+    Route::post('/certificates/bulk', [CertificateController::class, 'bulkStore'])->name('certificates.bulk');
     Route::resource('certificates', CertificateController::class)->except(['create']);
 
     // Student & Employee ID Card Generator (BRD module #19)

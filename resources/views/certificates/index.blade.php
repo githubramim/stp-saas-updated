@@ -5,10 +5,16 @@
                 <i class="bi bi-award text-orange-500"></i>
                 <span class="truncate">{{ __('Certificates') }}</span>
             </h2>
-            <button type="button" class="btn-solid-indigo shrink-0" data-bs-toggle="modal" data-bs-target="#createCertificateModal">
-                <i class="bi bi-plus-circle-fill"></i>
-                {{ __('New Certificate') }}
-            </button>
+            <div class="flex shrink-0 items-center gap-2">
+                <button type="button" class="btn-outline-gray" data-bs-toggle="modal" data-bs-target="#bulkCertificateModal">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    {{ __('Bulk Upload') }}
+                </button>
+                <button type="button" class="btn-solid-indigo" data-bs-toggle="modal" data-bs-target="#createCertificateModal">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    {{ __('New Certificate') }}
+                </button>
+            </div>
         </div>
     </x-slot>
 
@@ -17,6 +23,26 @@
             @if(session('success'))
                 <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
                     {{ session('success') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('bulk_errors'))
+                @php($bulkErrors = session('bulk_errors'))
+                <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                    <p class="flex items-center gap-1.5 font-bold">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        {{ __('Skipped rows') }}
+                    </p>
+                    <ul class="mt-1.5 max-h-48 space-y-0.5 overflow-auto pl-4 text-xs font-medium list-disc">
+                        @foreach($bulkErrors as $bulkError)
+                            <li>{{ $bulkError }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
@@ -132,10 +158,74 @@
         </div>
     </div>
 
+    {{-- Bulk Upload Modal --}}
+    <div class="modal fade" id="bulkCertificateModal" tabindex="-1" aria-labelledby="bulkCertificateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-slate-900 text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold text-white flex items-center gap-2" id="bulkCertificateModalLabel">
+                        <i class="bi bi-file-earmark-arrow-up text-orange-400"></i> {{ __('Bulk Upload Certificates') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+                </div>
+                <form method="POST" action="{{ route('certificates.bulk') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body p-4">
+                        @include('partials.modal-errors')
+
+                        <a href="{{ route('certificates.bulk-template') }}"
+                           class="flex items-center gap-3 rounded-3 border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 transition hover:border-indigo-300 hover:bg-indigo-100">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+                                <i class="bi bi-file-earmark-excel fs-5"></i>
+                            </span>
+                            <span class="flex-1">
+                                {{ __('Download the demo Excel file') }}
+                                <span class="block text-xs font-medium text-indigo-500">{{ __('Pre-filled with your students so you can try the upload right away.') }}</span>
+                            </span>
+                            <i class="bi bi-download"></i>
+                        </a>
+
+                        <div class="mt-3">
+                            <label for="bulk_certificate_file" class="form-label fw-semibold text-slate-700 small">{{ __('Excel or CSV file') }} *</label>
+                            <input id="bulk_certificate_file" type="file" name="file" accept=".xlsx,.csv,.txt" required
+                                   class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700">
+                            <p class="mt-1 text-xs text-slate-400">{{ __('XLSX or CSV, up to 5 MB and 1,000 rows.') }}</p>
+                        </div>
+
+                        <div class="mt-3 rounded-3 border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+                            <p class="fw-bold text-slate-700">{{ __('Accepted columns (header row first)') }}</p>
+                            <div class="mt-1.5 flex flex-wrap gap-1.5">
+                                <code class="rounded bg-white px-1.5 py-0.5 text-[11px] shadow-sm">student_reference</code>
+                                <code class="rounded bg-white px-1.5 py-0.5 text-[11px] shadow-sm">student_name</code>
+                                <code class="rounded bg-white px-1.5 py-0.5 text-[11px] shadow-sm">title *</code>
+                                <code class="rounded bg-white px-1.5 py-0.5 text-[11px] shadow-sm">exam_title</code>
+                                <code class="rounded bg-white px-1.5 py-0.5 text-[11px] shadow-sm">issued_date</code>
+                            </div>
+                            <ul class="mt-2 list-disc pl-4 space-y-0.5 text-[11px] text-slate-500">
+                                <li>{{ __('Students are matched by reference number, or by name / ID if the reference column is empty.') }}</li>
+                                <li>{{ __('Exam and date columns are optional. Dates can be 2026-01-31 or 31/01/2026.') }}</li>
+                                <li>{{ __('Certificate numbers and verification codes are generated automatically.') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary rounded-3 font-semibold" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 font-bold">
+                            <i class="bi bi-upload me-1"></i> {{ __('Upload & Import') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if(request('bulk') || $errors->has('file'))
+                    var bulkModal = document.getElementById('bulkCertificateModal');
+                    if (bulkModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(bulkModal).show();
+                @elseif($errors->any() || request('create'))
                     var modal = document.getElementById('createCertificateModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

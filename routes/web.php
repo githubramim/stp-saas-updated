@@ -38,7 +38,21 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    try {
+        $stats = [
+            'institutes' => Institute::count(),
+            'courses' => Course::count(),
+            'batches' => Batch::count(),
+            'students' => Student::count(),
+        ];
+        $courses = Course::orderBy('name')->limit(10)->pluck('name');
+    } catch (Throwable) {
+        // The landing page must render even if the database is unreachable.
+        $stats = ['institutes' => 0, 'courses' => 0, 'batches' => 0, 'students' => 0];
+        $courses = collect();
+    }
+
+    return view('welcome', ['stats' => $stats, 'courses' => $courses]);
 });
 
 Route::get('/apply', [StudentController::class, 'showForm'])->name('apply');

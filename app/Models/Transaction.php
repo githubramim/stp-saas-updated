@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'branch_id', 'student_id', 'batch_id', 'type', 'category',
         'amount', 'transaction_date', 'receipt_number', 'payment_method', 'description',

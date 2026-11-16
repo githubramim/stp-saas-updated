@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Student;
 use App\Models\Transaction;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +31,7 @@ class ExportController extends Controller
 
         $transactions = $query->orderBy('transaction_date', 'desc')->get();
 
-        $filename = "transactions_export_" . date('Y-m-d_H-i') . ".csv";
+        $filename = 'transactions_export_'.date('Y-m-d_H-i').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -43,7 +44,7 @@ class ExportController extends Controller
         $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
             // Add UTF-8 BOM for Excel Bengali character compatibility
-            fputs($file, "\xEF\xBB\xBF");
+            fwrite($file, "\xEF\xBB\xBF");
 
             fputcsv($file, ['ID', 'Date', 'Type', 'Category', 'Amount (BDT)', 'Payment Method', 'Reference No', 'Description']);
 
@@ -87,7 +88,7 @@ class ExportController extends Controller
 
         $students = $query->orderBy('created_at', 'desc')->get();
 
-        $filename = "students_export_" . date('Y-m-d_H-i') . ".csv";
+        $filename = 'students_export_'.date('Y-m-d_H-i').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -99,7 +100,7 @@ class ExportController extends Controller
 
         $callback = function () use ($students) {
             $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
+            fwrite($file, "\xEF\xBB\xBF");
 
             fputcsv($file, ['Reference No', 'Full Name', 'Contact Phone', 'Email', 'Course', 'Batch', 'Status', 'Applied Date']);
 
@@ -132,7 +133,9 @@ class ExportController extends Controller
 
         $query = Attendance::with(['student', 'batch'])
             ->where('institute_id', $instituteId)
-            ->whereHas('batch', fn($q) => $q->where('project_id', $projectId));
+            ->whereHas('batch', fn ($q) => $q->where('project_id', $projectId))
+            // Attendance of the selected branch's students only (BRD module #21).
+            ->whereHas('student', fn ($q) => $q->where('branch_id', BranchContext::scopeId()));
 
         if ($request->batch_id) {
             $query->where('batch_id', $request->batch_id);
@@ -144,7 +147,7 @@ class ExportController extends Controller
 
         $attendances = $query->orderBy('created_at', 'desc')->get();
 
-        $filename = "attendance_export_" . date('Y-m-d_H-i') . ".csv";
+        $filename = 'attendance_export_'.date('Y-m-d_H-i').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -156,7 +159,7 @@ class ExportController extends Controller
 
         $callback = function () use ($attendances) {
             $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
+            fwrite($file, "\xEF\xBB\xBF");
 
             fputcsv($file, ['Date', 'Student Name', 'Reference No', 'Batch', 'Status', 'Remarks']);
 

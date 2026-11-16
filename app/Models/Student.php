@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'project_id', 'branch_id', 'course_id', 'batch_id',
         'name_en', 'name_bn', 'father_name_en', 'father_name_bn',

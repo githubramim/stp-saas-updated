@@ -44,7 +44,17 @@ class AccountController extends Controller
     {
         return User::query()
             ->where('institute_id', $this->instituteId())
+            // Staff of the branch active in the top bar only (BRD module #21).
+            ->where('branch_id', BranchContext::scopeId())
             ->orderBy('name');
+    }
+
+    /**
+     * Restrict salary sheets to staff of the active branch.
+     */
+    private function branchStaffSheetFilter($query)
+    {
+        return $query->whereHas('user', fn ($q) => $q->where('branch_id', BranchContext::scopeId()));
     }
 
     public function dashboard()
@@ -75,7 +85,9 @@ class AccountController extends Controller
         $totalExpense = (float) Transaction::where('institute_id', $instituteId)
             ->where('type', 'expense')->sum('amount');
 
-        $salaryQuery = SalarySheet::where('institute_id', $instituteId)
+        $salaryQuery = $this->branchStaffSheetFilter(
+            SalarySheet::where('institute_id', $instituteId)
+        )
             ->forMonth(now()->format('Y-m'));
 
         $salaryDue = (float) (clone $salaryQuery)->where('status', SalarySheet::STATUS_DRAFT)->sum('net_salary');
@@ -122,8 +134,10 @@ class AccountController extends Controller
             ->limit(8)
             ->get();
 
-        $recentSalaries = SalarySheet::with('user')
-            ->where('institute_id', $instituteId)
+        $recentSalaries = $this->branchStaffSheetFilter(
+            SalarySheet::with('user')
+                ->where('institute_id', $instituteId)
+        )
             ->forMonth(now()->format('Y-m'))
             ->orderByDesc('net_salary')
             ->limit(6)
@@ -272,8 +286,10 @@ class AccountController extends Controller
         $instituteId = $this->instituteId();
         $month = $this->normalizeMonth($request->input('month'));
 
-        $sheets = SalarySheet::with(['user', 'transaction'])
-            ->where('institute_id', $instituteId)
+        $sheets = $this->branchStaffSheetFilter(
+            SalarySheet::with(['user', 'transaction'])
+                ->where('institute_id', $instituteId)
+        )
             ->forMonth($month)
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->get()
@@ -283,7 +299,9 @@ class AccountController extends Controller
         $staff = $this->staffQuery()->get();
         $existing = $sheets->keyBy('user_id');
 
-        $lastBasics = SalarySheet::where('institute_id', $instituteId)
+        $lastBasics = $this->branchStaffSheetFilter(
+            SalarySheet::where('institute_id', $instituteId)
+        )
             ->orderByDesc('month')
             ->get(['user_id', 'basic_salary'])
             ->groupBy('user_id')
@@ -469,8 +487,10 @@ class AccountController extends Controller
         $month = $data['month'];
         $paidOn = now()->toDateString();
 
-        $sheets = SalarySheet::with('user')
-            ->where('institute_id', $this->instituteId())
+        $sheets = $this->branchStaffSheetFilter(
+            SalarySheet::with('user')
+                ->where('institute_id', $this->instituteId())
+        )
             ->forMonth($month)
             ->where('status', SalarySheet::STATUS_DRAFT)
             ->where('net_salary', '>', 0)

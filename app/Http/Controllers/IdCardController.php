@@ -8,6 +8,7 @@ use App\Models\IdCardTemplate;
 use App\Models\Institute;
 use App\Models\Student;
 use App\Models\User;
+use App\Support\BranchContext;
 use App\Support\IdCardToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +48,9 @@ class IdCardController extends Controller
 
             $people = $students->map(fn (Student $student) => $this->studentCardData($student, $institute));
         } else {
+            // Employees of the selected branch only (BRD module #21).
             $users = User::where('institute_id', $institute->id)
+                ->where('branch_id', BranchContext::scopeId())
                 ->when($q !== '', function ($query) use ($q) {
                     $term = '%'.$q.'%';
                     $query->where(function ($sub) use ($term) {
@@ -68,9 +71,9 @@ class IdCardController extends Controller
         $template = IdCardTemplate::for($institute->id, $type);
         $counts = [
             'student' => Student::where('institute_id', $institute->id)->count(),
-            'employee' => User::where('institute_id', $institute->id)->count(),
+            'employee' => User::where('institute_id', $institute->id)->where('branch_id', BranchContext::scopeId())->count(),
             'student_photo' => Student::where('institute_id', $institute->id)->whereNotNull('photo_path')->count(),
-            'employee_photo' => User::where('institute_id', $institute->id)->whereNotNull('photo_path')->count(),
+            'employee_photo' => User::where('institute_id', $institute->id)->where('branch_id', BranchContext::scopeId())->whereNotNull('photo_path')->count(),
         ];
 
         return view('id-cards.index', compact(
@@ -94,7 +97,10 @@ class IdCardController extends Controller
                 ? $this->studentCardData($student, $institute)
                 : $this->samplePerson($type);
         } else {
-            $user = User::where('institute_id', $institute->id)->orderBy('name')->first();
+            $user = User::where('institute_id', $institute->id)
+                ->where('branch_id', BranchContext::scopeId())
+                ->orderBy('name')
+                ->first();
             $sample = $user
                 ? $this->employeeCardData($user, $institute)
                 : $this->samplePerson($type);
@@ -144,6 +150,7 @@ class IdCardController extends Controller
                 ->map(fn (Student $student) => $this->studentCardData($student, $institute));
         } else {
             $people = User::where('institute_id', $institute->id)
+                ->where('branch_id', BranchContext::scopeId())
                 ->whereIn('id', $ids)
                 ->orderBy('name')
                 ->get()
@@ -212,7 +219,9 @@ class IdCardController extends Controller
             $student->photo_path = $request->file('photo')->store('student-photos', 'public');
             $student->save();
         } else {
-            $user = User::where('institute_id', $institute->id)->findOrFail($person);
+            $user = User::where('institute_id', $institute->id)
+                ->where('branch_id', BranchContext::scopeId())
+                ->findOrFail($person);
 
             if ($user->photo_path) {
                 Storage::disk('public')->delete($user->photo_path);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Batch;
 use App\Models\InternalEvaluation;
 use App\Models\User;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +18,7 @@ class InternalEvaluationController extends Controller
 
         $evaluations = InternalEvaluation::with(['batch.course', 'trainer', 'student'])
             ->where('institute_id', $instituteId)
-            ->whereHas('batch', fn($q) => $q->where('project_id', $projectId))
+            ->whereHas('batch', fn ($q) => $q->where('project_id', $projectId))
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -28,6 +29,7 @@ class InternalEvaluationController extends Controller
 
         $trainers = User::where('institute_id', $instituteId)
             ->where('role', 'trainer')
+            ->where('branch_id', BranchContext::scopeId())
             ->get();
 
         return view('evaluations.index', compact('evaluations', 'batches', 'trainers'));
@@ -45,6 +47,7 @@ class InternalEvaluationController extends Controller
 
         $trainers = User::where('institute_id', $instituteId)
             ->where('role', 'trainer')
+            ->where('branch_id', BranchContext::scopeId())
             ->get();
 
         return view('evaluations.create', compact('batches', 'trainers'));
@@ -86,13 +89,14 @@ class InternalEvaluationController extends Controller
 
         $trainers = User::where('institute_id', $instituteId)
             ->where('role', 'trainer')
+            ->where('branch_id', BranchContext::scopeId())
             ->get();
 
         $selectedTrainerId = $request->trainer_id;
 
         $evaluations = InternalEvaluation::with(['batch.course', 'trainer'])
             ->where('institute_id', $instituteId)
-            ->whereHas('batch', fn($q) => $q->where('project_id', $projectId));
+            ->whereHas('batch', fn ($q) => $q->where('project_id', $projectId));
 
         if ($selectedTrainerId) {
             $evaluations->where('trainer_id', $selectedTrainerId);

@@ -35,6 +35,7 @@ use App\Models\Resource;
 use App\Models\Student;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Support\BranchContext;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -113,6 +114,8 @@ Route::middleware('auth')->group(function () {
 
         $todayRows = $institute ? Attendance::where('institute_id', $institute->id)
             ->whereDate('created_at', today())
+            // Attendance of the selected branch's students only (BRD module #21).
+            ->whereHas('student', fn ($q) => $q->where('branch_id', BranchContext::scopeId()))
             ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status') : collect();
 
         $todayPresent = (int) ($todayRows->get(Attendance::STATUS_PRESENT, 0) + $todayRows->get(Attendance::STATUS_LATE, 0));
@@ -166,6 +169,7 @@ Route::middleware('auth')->group(function () {
         // ===== Trainer / Instructor count =====
         $trainerCount = User::where('institute_id', $instituteId)
             ->where('role', 'trainer')
+            ->where('branch_id', BranchContext::scopeId())
             ->count();
 
         // ===== Damaged / Maintenance lab resources alert =====

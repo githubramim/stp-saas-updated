@@ -10,6 +10,7 @@ use App\Models\LeadMessage;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\WhatsAppService;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +20,7 @@ use Illuminate\Validation\Rule;
 
 class CrmController extends Controller
 {
-    public function __construct(private WhatsAppService $whatsapp)
-    {
-    }
+    public function __construct(private WhatsAppService $whatsapp) {}
 
     private function guard(): void
     {
@@ -50,6 +49,7 @@ class CrmController extends Controller
     {
         return User::query()
             ->where('institute_id', $this->instituteId())
+            ->where('branch_id', BranchContext::scopeId())
             ->orderBy('name')
             ->get(['id', 'name', 'role']);
     }
@@ -257,7 +257,7 @@ class CrmController extends Controller
         $query = $this->leadQuery()->with(['course', 'assignedTo']);
 
         $query->when($request->filled('q'), function ($q) use ($request) {
-            $term = '%' . trim((string) $request->q) . '%';
+            $term = '%'.trim((string) $request->q).'%';
             $q->where(function ($sub) use ($term) {
                 $sub->where('name', 'ilike', $term)
                     ->orWhere('phone', 'ilike', $term)
@@ -326,7 +326,7 @@ class CrmController extends Controller
         if ($duplicate) {
             return back()
                 ->withInput()
-                ->with('error', 'An open lead already exists for this phone number: ' . $duplicate->name . '. Open that lead instead of creating a duplicate.');
+                ->with('error', 'An open lead already exists for this phone number: '.$duplicate->name.'. Open that lead instead of creating a duplicate.');
         }
 
         $followUpAt = $data['next_follow_up_at'] ?? null;
@@ -352,14 +352,14 @@ class CrmController extends Controller
             }
 
             if (filled($lead->notes)) {
-                $this->logMessage($lead, LeadMessage::CHANNEL_NOTE, 'Lead created: ' . $lead->notes, 'logged', null, 'inbound');
+                $this->logMessage($lead, LeadMessage::CHANNEL_NOTE, 'Lead created: '.$lead->notes, 'logged', null, 'inbound');
             }
 
             return $lead;
         });
 
         return redirect()->route('crm.leads')
-            ->with('success', 'Lead “' . $lead->name . '” added successfully.');
+            ->with('success', 'Lead “'.$lead->name.'” added successfully.');
     }
 
     public function showLead(Lead $lead)
@@ -453,7 +453,7 @@ class CrmController extends Controller
         }
 
         return redirect()->route('crm.leads.show', $lead)
-            ->with('success', 'Lead status changed to ' . (Lead::STATUSES[$data['status']] ?? $data['status']) . '.');
+            ->with('success', 'Lead status changed to '.(Lead::STATUSES[$data['status']] ?? $data['status']).'.');
     }
 
     public function destroyLead(Lead $lead)
@@ -469,7 +469,7 @@ class CrmController extends Controller
         $lead->delete();
 
         return redirect()->route('crm.leads')
-            ->with('success', 'Lead “' . $name . '” deleted.');
+            ->with('success', 'Lead “'.$name.'” deleted.');
     }
 
     public function storeFollowUp(Request $request, Lead $lead)
@@ -502,7 +502,7 @@ class CrmController extends Controller
         });
 
         return redirect()->route('crm.leads.show', $lead)
-            ->with('success', 'Follow-up scheduled for ' . Carbon::parse($data['scheduled_at'])->format('d M Y, h:i A') . '.');
+            ->with('success', 'Follow-up scheduled for '.Carbon::parse($data['scheduled_at'])->format('d M Y, h:i A').'.');
     }
 
     public function completeFollowUp(Request $request, LeadFollowUp $followUp)
@@ -521,7 +521,7 @@ class CrmController extends Controller
         DB::transaction(function () use ($followUp, $data) {
             $notes = trim((string) $followUp->notes);
             if (filled($data['outcome'] ?? null)) {
-                $notes = trim($notes . "\nOutcome: " . $data['outcome']);
+                $notes = trim($notes."\nOutcome: ".$data['outcome']);
             }
 
             $followUp->update([
@@ -565,7 +565,7 @@ class CrmController extends Controller
         $followUp->lead?->syncNextFollowUp();
 
         return redirect()->route('crm.leads.show', $followUp->lead_id)
-            ->with('success', 'Follow-up rescheduled to ' . Carbon::parse($data['scheduled_at'])->format('d M Y, h:i A') . '.');
+            ->with('success', 'Follow-up rescheduled to '.Carbon::parse($data['scheduled_at'])->format('d M Y, h:i A').'.');
     }
 
     public function destroyFollowUp(LeadFollowUp $followUp)
@@ -619,14 +619,14 @@ class CrmController extends Controller
         ]);
 
         if (! $result['ok']) {
-            return back()->with('error', 'WhatsApp could not be sent: ' . ($result['error'] ?? 'unknown error') . ' The attempt was logged.');
+            return back()->with('error', 'WhatsApp could not be sent: '.($result['error'] ?? 'unknown error').' The attempt was logged.');
         }
 
         $message = $data['channel'] === LeadMessage::CHANNEL_WHATSAPP
             ? ($result['driver'] === 'cloud'
                 ? 'WhatsApp message sent through the Cloud API.'
                 : 'WhatsApp message logged. Use the button below to open it in WhatsApp.')
-            : ucfirst($data['channel']) . ' logged on the lead timeline.';
+            : ucfirst($data['channel']).' logged on the lead timeline.';
 
         return back()->with('success', $message);
     }
@@ -637,7 +637,7 @@ class CrmController extends Controller
         $this->ensureLead($lead);
 
         if ($lead->converted_student_id) {
-            return back()->with('error', 'This lead is already linked to student ' . ($lead->convertedStudent?->reference_no ?? '—') . '.');
+            return back()->with('error', 'This lead is already linked to student '.($lead->convertedStudent?->reference_no ?? '—').'.');
         }
 
         $instituteId = $this->instituteId();
@@ -733,8 +733,8 @@ class CrmController extends Controller
             $this->logMessage(
                 $lead,
                 LeadMessage::CHANNEL_NOTE,
-                'Converted to student ' . $student->reference_no . ' — ' . $student->name_en
-                . ' (' . ($batchId ? 'admitted to batch' : 'application pending review') . ')',
+                'Converted to student '.$student->reference_no.' — '.$student->name_en
+                .' ('.($batchId ? 'admitted to batch' : 'application pending review').')',
                 'logged'
             );
 
@@ -742,8 +742,8 @@ class CrmController extends Controller
         });
 
         return redirect()->route('crm.leads.show', $lead)
-            ->with('success', 'Lead converted to student ' . $student->reference_no . ' (' . $student->name_en . '). '
-                . ($student->batch_id ? 'The student is admitted.' : 'The application is awaiting batch assignment.'));
+            ->with('success', 'Lead converted to student '.$student->reference_no.' ('.$student->name_en.'). '
+                .($student->batch_id ? 'The student is admitted.' : 'The application is awaiting batch assignment.'));
     }
 
     public function reminders(Request $request)
@@ -794,14 +794,14 @@ class CrmController extends Controller
         $query->when($request->filled('status'), fn ($q) => $q->where('status', $request->status));
         $query->when($request->filled('source'), fn ($q) => $q->where('source', $request->source));
         $query->when($request->filled('q'), function ($q) use ($request) {
-            $term = '%' . trim((string) $request->q) . '%';
+            $term = '%'.trim((string) $request->q).'%';
             $q->where(function ($sub) use ($term) {
                 $sub->where('name', 'ilike', $term)->orWhere('phone', 'ilike', $term);
             });
         });
 
         $leads = $query->orderByDesc('created_at')->get();
-        $filename = 'leads-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'leads-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($leads) {
             $handle = fopen('php://output', 'w');
@@ -857,7 +857,7 @@ class CrmController extends Controller
     private function uniqueReferenceNo(): string
     {
         do {
-            $reference = 'STP-' . strtoupper(Str::random(8));
+            $reference = 'STP-'.strtoupper(Str::random(8));
         } while (Student::where('reference_no', $reference)->exists());
 
         return $reference;

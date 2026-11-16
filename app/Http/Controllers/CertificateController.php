@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Certificate;
 use App\Models\Exam;
 use App\Models\Student;
+use App\Support\BranchContext;
 use App\Support\Spreadsheet\XlsxReader;
 use App\Support\Spreadsheet\XlsxWriter;
 use Carbon\Carbon;
@@ -15,7 +16,11 @@ class CertificateController extends Controller
 {
     public function index()
     {
-        $certificates = Certificate::with(['student', 'exam'])->latest()->paginate(20);
+        // Certificates of the selected branch's students only (BRD module #21).
+        $certificates = Certificate::with(['student', 'exam'])
+            ->whereHas('student', fn ($q) => $q->where('branch_id', BranchContext::scopeId()))
+            ->latest()
+            ->paginate(20);
 
         $instituteId = auth()->user()->institute_id;
         $students = Student::where('institute_id', $instituteId)->orderBy('name_en')->get();

@@ -20,6 +20,17 @@ class BranchContext
     }
 
     /**
+     * The branch id bound by SetBranchScope middleware for this request,
+     * or 0 when no branch scope is active (public/console context).
+     */
+    public static function scopeId(): int
+    {
+        return app()->bound('branch.scope.id')
+            ? (int) app('branch.scope.id')
+            : 0;
+    }
+
+    /**
      * All branches of the user's institute.
      */
     public static function branches(User $user): Collection

@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\ProjectAsset;
 use App\Models\Stipend;
 use App\Models\Student;
+use App\Support\BranchContext;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,7 @@ class PbtmController extends Controller
             $projectId = session('current_project_id');
         }
 
-        if (!$projectId) {
+        if (! $projectId) {
             return null;
         }
 
@@ -60,7 +61,9 @@ class PbtmController extends Controller
     {
         return Stipend::query()
             ->where('institute_id', $this->instituteId())
-            ->when($project, fn (Builder $q) => $q->where('project_id', $project->id));
+            ->when($project, fn (Builder $q) => $q->where('project_id', $project->id))
+            // Stipends of the selected branch's students only (BRD module #21).
+            ->whereHas('student', fn (Builder $q) => $q->where('branch_id', BranchContext::scopeId()));
     }
 
     private function scopedAssets(?Project $project): Builder
@@ -74,7 +77,9 @@ class PbtmController extends Controller
     {
         return JobPlacement::query()
             ->where('institute_id', $this->instituteId())
-            ->when($project, fn (Builder $q) => $q->where('project_id', $project->id));
+            ->when($project, fn (Builder $q) => $q->where('project_id', $project->id))
+            // Placements of the selected branch's students only (BRD module #21).
+            ->whereHas('student', fn (Builder $q) => $q->where('branch_id', BranchContext::scopeId()));
     }
 
     public function index(Request $request)
@@ -154,7 +159,7 @@ class PbtmController extends Controller
 
         $student->update(['status' => $validated['status']]);
 
-        return back()->with('success', "{$student->name_en} moved to " . $this->traineeStatuses()[$validated['status']] . '.');
+        return back()->with('success', "{$student->name_en} moved to ".$this->traineeStatuses()[$validated['status']].'.');
     }
 
     private function traineeStatuses(): array
@@ -333,7 +338,7 @@ class PbtmController extends Controller
 
         $projectId = $validated['project_id'] ?? ($request->integer('project_id') ?: null);
 
-        if (!empty($validated['student_id'])) {
+        if (! empty($validated['student_id'])) {
             $student = Student::where('institute_id', $this->instituteId())->findOrFail($validated['student_id']);
             $projectId = $projectId ?: $student->project_id;
         }
@@ -487,7 +492,7 @@ class PbtmController extends Controller
         $view = $request->get('view') === 'quarterly' ? 'quarterly' : 'monthly';
         $report = $this->buildReport($project, $year, $view);
 
-        $filename = 'pbtm-progress-' . ($project?->code ?: 'all-projects') . '-' . $year . '-' . $view . '.csv';
+        $filename = 'pbtm-progress-'.($project?->code ?: 'all-projects').'-'.$year.'-'.$view.'.csv';
 
         return response()->streamDownload(function () use ($project, $year, $view, $report) {
             $handle = fopen('php://output', 'w');
@@ -565,6 +570,8 @@ class PbtmController extends Controller
                 ->join('students', 'students.id', '=', 'attendances.student_id')
                 ->where('attendances.institute_id', $this->instituteId())
                 ->when($project, fn ($q) => $q->where('students.project_id', $project->id))
+                // Attendance of the selected branch's students only (BRD module #21).
+                ->where('students.branch_id', BranchContext::scopeId())
                 ->whereBetween('attendance_sessions.session_date', [$start->toDateString(), $end->toDateString()])
                 ->selectRaw("count(*) as total, sum(case when attendances.status in ('present', 'late') then 1 else 0 end) as present")
                 ->first();
@@ -602,8 +609,8 @@ class PbtmController extends Controller
                 $attendanceTotalForQuarter = array_sum(array_column($months, 'attendance_total'));
                 $quarterly[] = [
                     'month' => $index + 1,
-                    'label' => 'Q' . ($index + 1) . ' (' . $months[0]['short'] . '–' . $months[count($months) - 1]['short'] . ')',
-                    'short' => 'Q' . ($index + 1),
+                    'label' => 'Q'.($index + 1).' ('.$months[0]['short'].'–'.$months[count($months) - 1]['short'].')',
+                    'short' => 'Q'.($index + 1),
                     'enrolled' => array_sum(array_column($months, 'enrolled')),
                     'selected' => array_sum(array_column($months, 'selected')),
                     'stipend_paid' => array_sum(array_column($months, 'stipend_paid')),

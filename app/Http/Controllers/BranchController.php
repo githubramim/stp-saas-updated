@@ -24,15 +24,27 @@ class BranchController extends Controller
 
         $instituteId = $this->instituteId();
 
+        // Branch management must see every branch's people, so the branch
+        // global scope is bypassed here on purpose.
         $branches = Branch::where('institute_id', $instituteId)
-            ->withCount(['users', 'students'])
+            ->withCount(['users'])
             ->orderBy('id')
             ->get();
+
+        $studentCounts = Student::withoutGlobalScope('branch')
+            ->where('institute_id', $instituteId)
+            ->selectRaw('branch_id, count(*) as total')
+            ->groupBy('branch_id')
+            ->pluck('total', 'branch_id');
+
+        $branches->each(function (Branch $branch) use ($studentCounts) {
+            $branch->students_count = (int) ($studentCounts[$branch->id] ?? 0);
+        });
 
         [$from, $to, $period] = $this->resolvePeriod($request);
 
         // Branch-wise P&L: income/expense/net per branch for the period.
-        $plRows = Transaction::query()
+        $plRows = Transaction::withoutGlobalScope('branch')
             ->where('institute_id', $instituteId)
             ->when($period !== 'all', fn ($q) => $q->whereBetween('transaction_date', [$from->copy()->startOfDay(), $to->copy()->endOfDay()]))
             ->selectRaw('branch_id, type, SUM(amount) as total')
@@ -70,7 +82,7 @@ class BranchController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'role', 'branch_id']);
 
-        $students = Student::query()
+        $students = Student::withoutGlobalScope('branch')
             ->where('institute_id', $instituteId)
             ->orderBy('name_en')
             ->get(['id', 'name_en', 'reference_no', 'branch_id']);
@@ -178,7 +190,7 @@ class BranchController extends Controller
                 ->whereIn('id', $people)
                 ->update(['branch_id' => $branch->id]);
         } else {
-            $moved = Student::query()
+            $moved = Student::withoutGlobalScope('branch')
                 ->where('institute_id', $this->instituteId())
                 ->whereIn('id', $people)
                 ->update(['branch_id' => $branch->id]);

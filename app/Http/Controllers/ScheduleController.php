@@ -6,6 +6,7 @@ use App\Models\Batch;
 use App\Models\Project;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Support\BranchContext;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,7 @@ class ScheduleController extends Controller
     private function projectTrainers()
     {
         return User::where('institute_id', Auth::user()->institute_id)
+            ->where('branch_id', BranchContext::scopeId())
             ->orderBy('name')
             ->get(['id', 'name']);
     }

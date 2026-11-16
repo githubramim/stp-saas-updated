@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Student extends Model
 {
     protected $fillable = [
-        'institute_id', 'project_id', 'course_id', 'batch_id',
+        'institute_id', 'project_id', 'branch_id', 'course_id', 'batch_id',
         'name_en', 'name_bn', 'father_name_en', 'father_name_bn',
         'mother_name_en', 'mother_name_bn', 'contact', 'email',
         'dob', 'gender', 'religion', 'nationality', 'blood_group',
@@ -39,6 +39,11 @@ class Student extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function course(): BelongsTo

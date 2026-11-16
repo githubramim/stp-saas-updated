@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Transaction extends Model
 {
     protected $fillable = [
-        'institute_id', 'student_id', 'batch_id', 'type', 'category',
+        'institute_id', 'branch_id', 'student_id', 'batch_id', 'type', 'category',
         'amount', 'transaction_date', 'receipt_number', 'payment_method', 'description',
     ];
 
@@ -23,6 +23,11 @@ class Transaction extends Model
     public function institute(): BelongsTo
     {
         return $this->belongsTo(Institute::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function student(): BelongsTo

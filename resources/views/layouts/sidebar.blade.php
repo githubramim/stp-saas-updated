@@ -73,6 +73,12 @@
             </a>
 
             @if(!$isTrainer)
+                <!-- 1.1 Branches (BRD module #21) -->
+                <a href="{{ route('branches.index') }}" class="sidebar-item {{ request()->routeIs('branches.*') ? 'active' : '' }}">
+                    <i class="bi bi-diagram-2 item-icon text-purple-400"></i>
+                    <span class="item-text">{{ __('Branches') }}</span>
+                </a>
+
                 <!-- 2. Projects -->
                 <a href="{{ route('projects.index') }}" class="sidebar-item {{ request()->routeIs('projects.*') && !request()->routeIs('projects.dashboard') ? 'active' : '' }}">
                     <i class="bi bi-folder2-open item-icon text-blue-400"></i>

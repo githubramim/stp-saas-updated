@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BatchController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CrmController;
@@ -258,11 +259,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/applications/{student}/approve', [AdmissionController::class, 'approve'])->name('admissions.approve');
     Route::post('/applications/{student}/reject', [AdmissionController::class, 'reject'])->name('admissions.reject');
     Route::post('/applications/{student}/change-batch', [AdmissionController::class, 'changeBatch'])->name('admissions.change-batch');
+    Route::post('/applications/{student}/change-branch', [AdmissionController::class, 'changeBranch'])->name('admissions.change-branch');
     Route::post('/applications/{student}/remove-batch', [AdmissionController::class, 'removeFromBatch'])->name('admissions.remove-batch');
     Route::get('/students', [AdmissionController::class, 'students'])->name('admissions.students');
 
     Route::get('/institute/edit', [InstituteController::class, 'edit'])->name('institute.edit');
     Route::patch('/institute/update', [InstituteController::class, 'update'])->name('institute.update');
+
+    // Branch Management (BRD module #21). switch/assign must be registered
+    // before the resource so /branches/switch is not captured by show().
+    Route::post('/branches/switch', [BranchController::class, 'switchBranch'])->name('branches.switch');
+    Route::post('/branches/assign', [BranchController::class, 'assign'])->name('branches.assign');
+    Route::resource('branches', BranchController::class)->except(['create', 'show']);
 
     // Attendance (BRD module #10)
     Route::get('/attendance/monthly-report', [AttendanceController::class, 'monthlyReport'])->name('attendance.monthly-report');

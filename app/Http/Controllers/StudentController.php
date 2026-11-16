@@ -6,6 +6,7 @@ use App\Models\Batch;
 use App\Models\Course;
 use App\Models\Institute;
 use App\Models\Student;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -74,6 +75,8 @@ class StudentController extends Controller
         $data = $request->except(['_token', 'photo_base64', 'signature_base64', 'nid_base64', 'nid_file']);
         $data['reference_no'] = $referenceNo;
         $data['status'] = 'applied';
+        // Public applications land in the institute's default branch ("Branch 1").
+        $data['branch_id'] = BranchContext::defaultFor((int) $course->institute_id)?->id;
 
         $data['photo_path'] = $this->saveBase64Image($request->photo_base64, 'photos', 300, 300);
         $data['signature_path'] = $this->saveBase64Image($request->signature_base64, 'signatures', 300, 80);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Batch;
 use App\Models\Student;
 use App\Models\Transaction;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,9 +23,9 @@ class TransactionController extends Controller
 
         if ($projectId) {
             $query->where(function ($q) use ($projectId) {
-                $q->whereHas('student', fn($sq) => $sq->where('project_id', $projectId))
-                  ->orWhereHas('batch', fn($bq) => $bq->where('project_id', $projectId))
-                  ->orWhereNull('student_id');
+                $q->whereHas('student', fn ($sq) => $sq->where('project_id', $projectId))
+                    ->orWhereHas('batch', fn ($bq) => $bq->where('project_id', $projectId))
+                    ->orWhereNull('student_id');
             });
         }
 
@@ -51,13 +52,13 @@ class TransactionController extends Controller
 
         $batches = Batch::with('course')
             ->where('institute_id', $instituteId)
-            ->when($projectId, fn($q) => $q->where('project_id', $projectId))
+            ->when($projectId, fn ($q) => $q->where('project_id', $projectId))
             ->whereIn('status', ['active', 'running', 'upcoming'])
             ->get();
 
         $students = Student::with(['course', 'batch'])
             ->where('institute_id', $instituteId)
-            ->when($projectId, fn($q) => $q->where('project_id', $projectId))
+            ->when($projectId, fn ($q) => $q->where('project_id', $projectId))
             ->whereIn('status', ['admitted', 'active', 'applied'])
             ->get();
 
@@ -99,7 +100,7 @@ class TransactionController extends Controller
         }
 
         $transactions = $query->orderBy('transaction_date', 'desc')->get();
-        $filename = 'transactions-' . now()->format('Y-m-d-His') . '.csv';
+        $filename = 'transactions-'.now()->format('Y-m-d-His').'.csv';
 
         return response()->streamDownload(function () use ($transactions) {
             $handle = fopen('php://output', 'w');
@@ -175,16 +176,17 @@ class TransactionController extends Controller
 
         $receiptNumber = null;
         if ($request->type === 'income') {
-            $receiptNumber = 'RCP-' . strtoupper(uniqid());
+            $receiptNumber = 'RCP-'.strtoupper(uniqid());
         }
 
         $category = $request->category;
-        if (in_array($category, ['Other Income', 'Other Expense', 'Others']) && !empty($request->custom_category)) {
+        if (in_array($category, ['Other Income', 'Other Expense', 'Others']) && ! empty($request->custom_category)) {
             $category = trim($request->custom_category);
         }
 
         Transaction::create([
             'institute_id' => $instituteId,
+            'branch_id' => BranchContext::current(Auth::user())?->id,
             'student_id' => $request->student_id,
             'batch_id' => $request->batch_id,
             'type' => $request->type,

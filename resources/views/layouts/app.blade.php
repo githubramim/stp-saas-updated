@@ -49,6 +49,48 @@
                     </div>
 
                     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                        @php($branchCtx = \App\Support\BranchContext::current(Auth::user()))
+                        @php($branchList = \App\Support\BranchContext::branches(Auth::user()))
+                        @if($branchList->isNotEmpty())
+                            {{-- Branch switcher (BRD module #21) --}}
+                            <div class="dropdown">
+                                <button type="button"
+                                        class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-diagram-2 text-indigo-500"></i>
+                                    <span class="max-w-[9rem] truncate">{{ $branchCtx?->name ?? __('Branch') }}</span>
+                                    <i class="bi bi-chevron-down text-[10px]"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 rounded-3 shadow-lg" style="min-width: 15rem;">
+                                    <li>
+                                        <h6 class="dropdown-header text-[10px] font-bold uppercase tracking-wider">{{ __('Switch Branch') }}</h6>
+                                    </li>
+                                    @foreach($branchList as $switchBranch)
+                                        <li>
+                                            <form method="POST" action="{{ route('branches.switch') }}">
+                                                @csrf
+                                                <input type="hidden" name="branch_id" value="{{ $switchBranch->id }}">
+                                                <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between gap-2 text-sm">
+                                                    <span class="truncate">{{ $switchBranch->name }}</span>
+                                                    @if($branchCtx?->id === $switchBranch->id)
+                                                        <i class="bi bi-check-circle-fill text-indigo-500"></i>
+                                                    @endif
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endforeach
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 text-sm fw-semibold"
+                                           href="{{ route('branches.index') }}">
+                                            <i class="bi bi-plus-circle text-indigo-500"></i>
+                                            {{ __('Add / Manage Branches') }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        @endif
+
                         <a href="{{ route('portal.index') }}"
                            target="_blank"
                            class="hidden items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:inline-flex">

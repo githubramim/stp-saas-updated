@@ -23,6 +23,7 @@
                                         <th class="text-left p-3 font-medium">Occupation</th>
                                         <th class="text-left p-3 font-medium">Level</th>
                                         <th class="text-left p-3 font-medium">Batch</th>
+                                        <th class="text-left p-3 font-medium">Branch</th>
                                         <th class="text-left p-3 font-medium">Contact</th>
                                         <th class="text-left p-3 font-medium">Change Batch</th>
                                         <th class="text-left p-3 font-medium">Action</th>
@@ -42,6 +43,17 @@
                                                 @endif
                                             </td>
                                             <td class="p-3">{{ $student->batch?->name ?? '—' }}</td>
+                                            <td class="p-3">
+                                                <form action="{{ route('admissions.change-branch', $student) }}" method="POST" class="flex gap-2">
+                                                    @csrf
+                                                    <select name="branch_id" class="text-xs rounded border-gray-300">
+                                                        @foreach($branches as $branch)
+                                                            <option value="{{ $branch->id }}" {{ $student->branch_id == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="submit" class="text-xs text-indigo-600 hover:text-indigo-900">Update</button>
+                                                </form>
+                                            </td>
                                             <td class="p-3">{{ $student->contact }}</td>
                                             <td class="p-3">
                                                 <form action="{{ route('admissions.change-batch', $student) }}" method="POST" class="flex gap-2">

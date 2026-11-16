@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SalarySheet;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -148,8 +149,8 @@ class AccountController extends Controller
             ->when($request->filled('date_to'), fn ($q) => $q->whereDate('transaction_date', '<=', $request->date_to))
             ->when($request->filled('category'), fn ($q) => $q->where('category', $request->category))
             ->when($request->filled('q'), fn ($q) => $q->where(function ($sub) use ($request) {
-                $sub->where('description', 'ilike', '%' . $request->q . '%')
-                    ->orWhere('category', 'ilike', '%' . $request->q . '%');
+                $sub->where('description', 'ilike', '%'.$request->q.'%')
+                    ->orWhere('category', 'ilike', '%'.$request->q.'%');
             }));
 
         $filteredTotal = (float) (clone $query)->sum('amount');
@@ -207,6 +208,7 @@ class AccountController extends Controller
 
         Transaction::create([
             'institute_id' => $this->instituteId(),
+            'branch_id' => BranchContext::current(Auth::user())?->id,
             'type' => 'expense',
             'category' => $category,
             'amount' => $data['amount'],
@@ -413,12 +415,13 @@ class AccountController extends Controller
         DB::transaction(function () use ($salarySheet, $paidOn, $data) {
             $transaction = Transaction::create([
                 'institute_id' => $salarySheet->institute_id,
+                'branch_id' => $salarySheet->user?->branch_id ?? BranchContext::current(Auth::user())?->id,
                 'type' => 'expense',
                 'category' => config('accounts.salary_category', 'Salary'),
                 'amount' => $salarySheet->net_salary,
                 'transaction_date' => $paidOn,
                 'payment_method' => $data['payment_method'] ?? 'Cash',
-                'description' => 'Salary — ' . ($salarySheet->user?->name ?? 'Staff') . ' (' . $salarySheet->month . ')',
+                'description' => 'Salary — '.($salarySheet->user?->name ?? 'Staff').' ('.$salarySheet->month.')',
             ]);
 
             $salarySheet->update([
@@ -481,12 +484,13 @@ class AccountController extends Controller
             foreach ($sheets as $sheet) {
                 $transaction = Transaction::create([
                     'institute_id' => $sheet->institute_id,
+                    'branch_id' => $sheet->user?->branch_id ?? BranchContext::current(Auth::user())?->id,
                     'type' => 'expense',
                     'category' => config('accounts.salary_category', 'Salary'),
                     'amount' => $sheet->net_salary,
                     'transaction_date' => $paidOn,
                     'payment_method' => $data['payment_method'] ?? 'Cash',
-                    'description' => 'Salary — ' . ($sheet->user?->name ?? 'Staff') . ' (' . $sheet->month . ')',
+                    'description' => 'Salary — '.($sheet->user?->name ?? 'Staff').' ('.$sheet->month.')',
                 ]);
 
                 $sheet->update([
@@ -498,7 +502,7 @@ class AccountController extends Controller
         });
 
         return redirect()->route('accounts.salaries', ['month' => $month])
-            ->with('success', $sheets->count() . ' salary sheet(s) paid. Expenses were recorded automatically.');
+            ->with('success', $sheets->count().' salary sheet(s) paid. Expenses were recorded automatically.');
     }
 
     public function destroySalary(SalarySheet $salarySheet)
@@ -539,7 +543,7 @@ class AccountController extends Controller
         [$from, $to] = $this->resolvePeriod($request);
         $report = $this->buildProfitLoss($this->instituteId(), $from, $to);
 
-        $filename = 'profit-loss-' . $from->format('Y-m-d') . '_to_' . $to->format('Y-m-d') . '.csv';
+        $filename = 'profit-loss-'.$from->format('Y-m-d').'_to_'.$to->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($report, $from, $to) {
             $handle = fopen('php://output', 'w');

@@ -79,6 +79,12 @@
                     <span class="item-text">{{ __('Branches') }}</span>
                 </a>
 
+                <!-- 1.2 HR & Employee Management (BRD module #22) -->
+                <a href="{{ route('hr.dashboard') }}" class="sidebar-item {{ request()->routeIs('hr.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge item-icon text-lime-400"></i>
+                    <span class="item-text">{{ __('HR & Employees') }}</span>
+                </a>
+
                 <!-- 2. Projects -->
                 <a href="{{ route('projects.index') }}" class="sidebar-item {{ request()->routeIs('projects.*') && !request()->routeIs('projects.dashboard') ? 'active' : '' }}">
                     <i class="bi bi-folder2-open item-icon text-blue-400"></i>

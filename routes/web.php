@@ -10,6 +10,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamResultController;
+use App\Http\Controllers\HRController;
 use App\Http\Controllers\IdCardController;
 use App\Http\Controllers\InstituteController;
 use App\Http\Controllers\InternalEvaluationController;
@@ -275,6 +276,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/branches/switch', [BranchController::class, 'switchBranch'])->name('branches.switch');
     Route::post('/branches/assign', [BranchController::class, 'assign'])->name('branches.assign');
     Route::resource('branches', BranchController::class)->except(['create', 'show']);
+
+    // HR & Employee Management (BRD module #22)
+    Route::prefix('hr')->name('hr.')->group(function () {
+        Route::get('/', [HRController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/employees/create', [HRController::class, 'createEmployee'])->name('employees.create');
+        Route::get('/employees', [HRController::class, 'employees'])->name('employees');
+        Route::post('/employees', [HRController::class, 'storeEmployee'])->name('employees.store');
+        Route::get('/employees/{user}/edit', [HRController::class, 'editEmployee'])->name('employees.edit');
+        Route::put('/employees/{user}', [HRController::class, 'updateEmployee'])->name('employees.update');
+        Route::put('/employees/{user}/status', [HRController::class, 'toggleStatus'])->name('employees.status');
+
+        Route::get('/attendance', [HRController::class, 'attendance'])->name('attendance');
+        Route::post('/attendance', [HRController::class, 'storeAttendance'])->name('attendance.store');
+
+        Route::get('/leaves', [HRController::class, 'leaves'])->name('leaves');
+        Route::post('/leaves', [HRController::class, 'storeLeave'])->name('leaves.store');
+        Route::put('/leaves/{leave}/status', [HRController::class, 'updateLeaveStatus'])->name('leaves.status');
+
+        Route::get('/payroll', [HRController::class, 'payroll'])->name('payroll');
+        Route::post('/payroll/generate', [HRController::class, 'generatePayroll'])->name('payroll.generate');
+
+        Route::get('/performance', [HRController::class, 'performance'])->name('performance');
+    });
 
     // Attendance (BRD module #10)
     Route::get('/attendance/monthly-report', [AttendanceController::class, 'monthlyReport'])->name('attendance.monthly-report');

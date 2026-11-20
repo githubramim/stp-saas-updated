@@ -25,6 +25,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\StudyMaterialController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UiStateController;
 use App\Models\Attendance;
 use App\Models\AttendanceSession;
 use App\Models\Batch;
@@ -81,6 +82,15 @@ Route::get('/id-card/{type}/{id}/{token}', [IdCardController::class, 'profile'])
     ->name('id-cards.profile');
 
 Route::middleware('auth')->group(function () {
+    // Clean-URL UI state: replaces `?create=1` and filter query strings.
+    Route::get('/open-create/{area}', [UiStateController::class, 'openCreate'])
+        ->where('area', '[a-z.\-]+')
+        ->name('ui.open-create');
+    Route::get('/ui/set/{area}/{params?}', [UiStateController::class, 'setParams'])
+        ->where('area', '[a-z.\-]+')
+        ->where('params', '.*')
+        ->name('ui.set');
+
     Route::get('/dashboard', function () {
         $institute = Auth::user()->institute;
         $instituteId = $institute?->id;
@@ -252,7 +262,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/reports.csv', [PbtmController::class, 'reportCsv'])->name('reports.csv');
     });
 
-    Route::get('/courses/tam-lookup', [CourseController::class, 'tamLookup'])->name('courses.tam-lookup');
+    Route::post('/courses/tam-lookup', [CourseController::class, 'tamLookup'])->name('courses.tam-lookup');
     Route::resource('courses', CourseController::class)->except(['create', 'show']);
     Route::resource('batches', BatchController::class)->except(['create', 'show']);
     Route::post('/projects/{project}/courses/inline-store', [CourseController::class, 'inlineStore'])->name('courses.inline-store');

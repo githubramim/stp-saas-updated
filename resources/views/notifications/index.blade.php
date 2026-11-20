@@ -114,7 +114,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="border-t border-slate-100 px-5 py-4">{{ $notifications->links() }}</div>
+                    <div class="border-t border-slate-100 px-5 py-4">@include('partials.clean-pagination', ['paginator' => $notifications])</div>
                 @endif
             </div>
         </div>
@@ -247,7 +247,7 @@
             }
 
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'notifications')
                     var notificationModal = document.getElementById('createNotificationModal');
                     if (notificationModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(notificationModal).show();
                 @endif

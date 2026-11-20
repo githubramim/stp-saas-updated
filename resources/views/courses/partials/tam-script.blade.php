@@ -1,6 +1,6 @@
 <script>
     (function () {
-        function initTamAutoFill(prefix, nameFieldId, lookupUrl) {
+        function initTamAutoFill(prefix, nameFieldId, lookupUrl, csrfToken) {
             var occupation = document.getElementById(prefix + '_tam_occupation');
             var level = document.getElementById(prefix + '_level');
             var sector = document.getElementById(prefix + '_sector');
@@ -28,12 +28,15 @@
                     return;
                 }
 
-                var params = new URLSearchParams({ occupation: selected });
-                if (level.value) {
-                    params.set('level', level.value);
-                }
-
-                fetch(lookupUrl + '?' + params.toString(), { headers: { 'Accept': 'application/json' } })
+                fetch(lookupUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ occupation: selected, level: level.value || null })
+                })
                     .then(function (response) {
                         return response.ok ? response.json() : null;
                     })
@@ -84,7 +87,8 @@
             initTamAutoFill(
                 @json($prefix),
                 @json($nameFieldId ?? null),
-                @json(route('courses.tam-lookup'))
+                @json(route('courses.tam-lookup')),
+                @json(csrf_token())
             );
         });
     })();

@@ -48,7 +48,8 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                         <h4 class="fw-bold text-dark mb-0">Transaction Records</h4>
-                        <form method="GET" class="d-flex gap-2 flex-wrap">
+                        <form method="POST" action="{{ route('ui.set', 'transactions.index') }}" class="d-flex gap-2 flex-wrap">
+                            @csrf
                             <select name="type" class="form-select form-select-sm rounded-3">
                                 <option value="">All Types</option>
                                 <option value="income" {{ request('type') === 'income' ? 'selected' : '' }}>Income</option>
@@ -119,7 +120,7 @@
                         </div>
                         @if(method_exists($transactions, 'links'))
                             <div class="mt-3">
-                                {{ $transactions->links() }}
+                                @include('partials.clean-pagination', ['paginator' => $transactions])
                             </div>
                         @endif
                     @endif
@@ -254,7 +255,7 @@
     {{-- Interactive Modal JS --}}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if($errors->any() || request('create'))
+            @if($errors->any() || session('open_create') === 'transactions')
                 var transactionModal = document.getElementById('createTransactionModal');
                 if (transactionModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(transactionModal).show();
             @endif

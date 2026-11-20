@@ -6,7 +6,7 @@
                 <p class="text-xs text-slate-400">{{ __('Every Facebook, website, phone and walk-in enquiry in one pipeline.') }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('crm.leads.export', request()->query()) }}" class="btn btn-outline-success rounded-3">
+                <a href="{{ route('ui.set', ['crm.leads.export', collect(request()->only(['q', 'source', 'status', 'assigned', 'followup']))->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}" class="btn btn-outline-success rounded-3">
                     <i class="bi bi-file-earmark-excel me-1"></i> {{ __('Export CSV') }}
                 </a>
                 <button type="button" class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#createLeadModal">
@@ -44,12 +44,12 @@
                 ];
             @endphp
             <div class="mb-4 flex flex-wrap gap-2">
-                <a href="{{ route('crm.leads', request()->except(['status', 'page'])) }}"
+                <a href="{{ route('ui.set', ['crm.leads', collect(request()->only(['q', 'source', 'assigned', 'followup']))->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}"
                    class="rounded-xl border px-3 py-2 text-xs font-semibold transition {{ request('status') ? 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' : 'border-indigo-600 bg-indigo-600 text-white' }}">
                     {{ __('All') }} <span class="ms-1 font-bold">{{ $totalAll }}</span>
                 </a>
                 @foreach(\App\Models\Lead::STATUSES as $value => $label)
-                    <a href="{{ route('crm.leads', array_merge(request()->except(['status', 'page']), ['status' => $value])) }}"
+                    <a href="{{ route('ui.set', ['crm.leads', collect(request()->only(['q', 'source', 'status', 'assigned', 'followup']))->filter()->merge(['status' => $value])->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}"
                        class="rounded-xl border px-3 py-2 text-xs font-semibold transition {{ request('status') === $value ? 'ring-2 ring-indigo-300 ' . ($statusPillClass[$value] ?? 'bg-slate-50 text-slate-700') : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50' }}">
                         {{ $label }} <span class="ms-1 font-bold">{{ (int) ($statusCounts[$value] ?? 0) }}</span>
                     </a>
@@ -58,7 +58,8 @@
 
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-100 p-4">
-                    <form method="GET" action="{{ route('crm.leads') }}" class="flex flex-wrap items-end gap-2">
+                    <form method="POST" action="{{ route('ui.set', 'crm.leads') }}" class="flex flex-wrap items-end gap-2">
+                        @csrf
                         <div class="min-w-[200px] flex-1">
                             <label class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('Search') }}</label>
                             <input type="text" name="q" value="{{ request('q') }}" class="form-control form-control-sm rounded-3"
@@ -322,7 +323,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(request('create') || old('_modal') === 'create-lead')
+            @if(session('open_create') === 'crm.leads' || old('_modal') === 'create-lead')
                 var createModal = document.getElementById('createLeadModal');
                 if (createModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(createModal).show();
             @endif

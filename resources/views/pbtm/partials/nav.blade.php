@@ -18,7 +18,7 @@
     <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div class="flex flex-wrap gap-1.5">
             @foreach($pbtmTabs as $tab)
-                <a href="{{ route($tab['route'], $pbtmQuery) }}"
+                <a href="{{ route('ui.set', [$tab['route'], collect($pbtmQuery)->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}"
                    class="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold transition
                           {{ request()->routeIs($tab['route']) ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800' }}">
                     <i class="bi {{ $tab['icon'] }}"></i>
@@ -27,7 +27,9 @@
             @endforeach
         </div>
 
-        <form method="GET" action="{{ route(request()->route()->getName()) }}" class="flex items-center gap-2">
+        <form method="POST" action="{{ route('ui.set', request()->route()->getName()) }}" class="flex items-center gap-2">
+
+            @csrf
             @if(request('year'))
                 <input type="hidden" name="year" value="{{ request('year') }}">
             @endif

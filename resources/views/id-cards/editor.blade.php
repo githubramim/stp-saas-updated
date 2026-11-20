@@ -12,7 +12,7 @@
                 </p>
             </div>
             <div class="flex shrink-0 items-center gap-2">
-                <a href="{{ route('id-cards.index', ['type' => $type]) }}"
+                <a href="{{ route('ui.set', ['id-cards.index', 'type:'.$type]) }}"
                    class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-800">
                     <i class="bi bi-arrow-left"></i>
                     {{ __('Cards') }}
@@ -49,11 +49,11 @@
             @endif
 
             <div class="mb-4 inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
-                <a href="{{ route('id-cards.editor', ['type' => 'student']) }}"
+                <a href="{{ route('ui.set', ['id-cards.editor', 'type:student']) }}"
                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition {{ $type === 'student' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                     <i class="bi bi-mortarboard"></i> {{ __('Student card') }}
                 </a>
-                <a href="{{ route('id-cards.editor', ['type' => 'employee']) }}"
+                <a href="{{ route('ui.set', ['id-cards.editor', 'type:employee']) }}"
                    class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition {{ $type === 'employee' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                     <i class="bi bi-person-badge"></i> {{ __('Employee card') }}
                 </a>
@@ -75,7 +75,7 @@
                  }">
 
                 {{-- ===================== FORM ===================== --}}
-                <form id="designForm" method="POST" action="{{ route('id-cards.editor.update', ['type' => $type]) }}"
+                <form id="designForm" method="POST" action="{{ route('id-cards.editor.update') }}"
                       class="order-2 space-y-5 lg:order-1 lg:col-span-2">
                     @csrf
                     @method('PUT')
@@ -274,7 +274,7 @@
                             {{ __('Reset to defaults') }}
                         </button>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('id-cards.index', ['type' => $type]) }}"
+                            <a href="{{ route('ui.set', ['id-cards.index', 'type:'.$type]) }}"
                                class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-50">
                                 {{ __('Cancel') }}
                             </a>
@@ -299,7 +299,7 @@
                                     <p class="mt-0.5 text-xs text-slate-400">{{ __('Updates as you edit. Actual CR80 size.') }}</p>
                                 </div>
                                 @if($sample['id'])
-                                    <a href="{{ route('id-cards.print', ['type' => $type, 'ids' => [$sample['id']]]) }}"
+                                    <a href="{{ route('ui.set', ['id-cards.print', 'type:'.$type.'/ids:'.$sample['id']]) }}"
                                        target="_blank" rel="noopener"
                                        class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600">
                                         <i class="bi bi-printer"></i> {{ __('Print') }}

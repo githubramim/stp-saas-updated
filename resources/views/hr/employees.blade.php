@@ -22,7 +22,8 @@
             @endif
 
             <div class="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <form method="GET" action="{{ route('hr.employees') }}" class="row g-2 align-items-end">
+                <form method="POST" action="{{ route('ui.set', 'hr.employees') }}" class="row g-2 align-items-end">
+                    @csrf
                     <div class="col-md-5">
                         <label for="hr_q" class="form-label text-[11px] font-bold uppercase text-slate-400">{{ __('Search') }}</label>
                         <input id="hr_q" name="q" value="{{ $search }}" placeholder="{{ __('Name, email, designation or phone') }}" class="form-control form-control-sm rounded-3">

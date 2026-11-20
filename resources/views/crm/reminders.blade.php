@@ -5,7 +5,7 @@
                 <h2 class="text-lg font-semibold leading-tight text-slate-800">{{ __('Follow-up Reminders') }}</h2>
                 <p class="text-xs text-slate-400">{{ __('Every pending call, WhatsApp and meeting in one queue so no lead goes cold.') }}</p>
             </div>
-            <a href="{{ route('crm.leads', ['create' => 1]) }}" class="btn btn-primary rounded-3">
+            <a href="{{ route('ui.open-create', 'crm.leads') }}" class="btn btn-primary rounded-3">
                 <i class="bi bi-plus-circle-fill me-1"></i> {{ __('New Lead') }}
             </a>
         </div>
@@ -36,7 +36,7 @@
                     <div class="mt-1 text-xs text-slate-400">{{ __('Across the whole pipeline') }}</div>
                 </a>
 
-                <a href="{{ route('crm.reminders', ['bucket' => 'overdue']) }}" class="rounded-2xl border {{ $bucket === 'overdue' ? 'border-rose-300 ring-2 ring-rose-100' : 'border-rose-100' }} bg-white p-5 shadow-sm transition hover:border-rose-200">
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:overdue']) }}" class="rounded-2xl border {{ $bucket === 'overdue' ? 'border-rose-300 ring-2 ring-rose-100' : 'border-rose-100' }} bg-white p-5 shadow-sm transition hover:border-rose-200">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">{{ __('Overdue') }}</span>
                         <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-50 text-rose-600"><i class="bi bi-exclamation-triangle"></i></span>
@@ -45,7 +45,7 @@
                     <div class="mt-1 text-xs text-slate-400">{{ __('Past their scheduled date') }}</div>
                 </a>
 
-                <a href="{{ route('crm.reminders', ['bucket' => 'today']) }}" class="rounded-2xl border {{ $bucket === 'today' ? 'border-amber-300 ring-2 ring-amber-100' : 'border-amber-100' }} bg-white p-5 shadow-sm transition hover:border-amber-200">
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:today']) }}" class="rounded-2xl border {{ $bucket === 'today' ? 'border-amber-300 ring-2 ring-amber-100' : 'border-amber-100' }} bg-white p-5 shadow-sm transition hover:border-amber-200">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">{{ __('Today') }}</span>
                         <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600"><i class="bi bi-sun"></i></span>
@@ -54,7 +54,7 @@
                     <div class="mt-1 text-xs text-slate-400">{{ now()->format('d M Y') }}</div>
                 </a>
 
-                <a href="{{ route('crm.reminders', ['bucket' => 'upcoming']) }}" class="rounded-2xl border {{ $bucket === 'upcoming' ? 'border-sky-300 ring-2 ring-sky-100' : 'border-sky-100' }} bg-white p-5 shadow-sm transition hover:border-sky-200">
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:upcoming']) }}" class="rounded-2xl border {{ $bucket === 'upcoming' ? 'border-sky-300 ring-2 ring-sky-100' : 'border-sky-100' }} bg-white p-5 shadow-sm transition hover:border-sky-200">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">{{ __('Upcoming') }}</span>
                         <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600"><i class="bi bi-calendar-week"></i></span>
@@ -68,13 +68,14 @@
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 p-4">
                     <div class="flex flex-wrap gap-1.5">
                         @foreach(['all' => __('All'), 'overdue' => __('Overdue'), 'today' => __('Today'), 'upcoming' => __('Upcoming')] as $value => $label)
-                            <a href="{{ route('crm.reminders', array_merge(request()->except(['bucket', 'page']), ['bucket' => $value])) }}"
+                            <a href="{{ route('ui.set', ['crm.reminders', collect(['bucket' => $value, 'assigned' => request('assigned')])->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}"
                                class="rounded-xl px-3 py-2 text-xs font-semibold transition {{ $bucket === $value ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                                 {{ $label }}
                             </a>
                         @endforeach
                     </div>
-                    <form method="GET" action="{{ route('crm.reminders') }}" class="flex items-center gap-2">
+                    <form method="POST" action="{{ route('ui.set', 'crm.reminders') }}" class="flex items-center gap-2">
+                        @csrf
                         <input type="hidden" name="bucket" value="{{ $bucket }}">
                         <label class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('Assigned') }}</label>
                         <select name="assigned" class="form-select form-select-sm rounded-3" style="min-width: 160px;" onchange="this.form.submit()">

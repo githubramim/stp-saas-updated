@@ -252,7 +252,7 @@ class PbtmController extends Controller
             'student_id' => $student->id,
         ]));
 
-        return redirect()->route('pbtm.stipends', array_filter(['project_id' => $request->project_id]))
+        return redirect()->route('ui.set', ['pbtm.stipends', 'project_id:'.$request->project_id])
             ->with('success', 'Stipend record saved successfully.');
     }
 
@@ -356,7 +356,7 @@ class PbtmController extends Controller
             'project_id' => $projectId,
         ]));
 
-        return redirect()->route('pbtm.assets', array_filter(['project_id' => $request->project_id]))
+        return redirect()->route('ui.set', ['pbtm.assets', 'project_id:'.$request->project_id])
             ->with('success', 'Asset record saved successfully.');
     }
 
@@ -452,7 +452,7 @@ class PbtmController extends Controller
             'placement_date' => $validated['placement_date'] ?? now()->toDateString(),
         ]));
 
-        return redirect()->route('pbtm.placements', array_filter(['project_id' => $request->project_id]))
+        return redirect()->route('ui.set', ['pbtm.placements', 'project_id:'.$request->project_id])
             ->with('success', 'Job placement saved successfully.');
     }
 

@@ -65,7 +65,7 @@
             <div class="mt-6 flex flex-wrap items-center gap-2">
                 <span class="text-xs font-bold uppercase tracking-wide text-slate-400">{{ __('Branch-wise P&L period') }}:</span>
                 @foreach(['this_month' => __('This month'), 'this_year' => __('This year'), 'all' => __('All time')] as $key => $label)
-                    <a href="{{ route('branches.index', ['period' => $key]) }}"
+                    <a href="{{ route('ui.set', ['branches.index', 'period:'.$key]) }}"
                        class="rounded-lg px-3 py-1.5 text-xs font-bold transition {{ $period === $key ? 'bg-indigo-600 text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-600' }}">
                         {{ $label }}
                     </a>

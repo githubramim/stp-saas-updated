@@ -6,7 +6,7 @@
                 <p class="text-xs text-slate-400">{{ __('Know the exact profit or loss of the institute for any period.') }}</p>
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('accounts.profit-loss.csv', request()->query()) }}" class="btn btn-outline-success rounded-3">
+                <a href="{{ route('ui.set', ['accounts.profit-loss.csv', collect(request()->only(['period', 'date_from', 'date_to']))->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}" class="btn btn-outline-success rounded-3">
                     <i class="bi bi-file-earmark-excel me-1"></i> {{ __('Export CSV') }}
                 </a>
                 <button type="button" class="btn btn-outline-primary rounded-3" onclick="window.print()">
@@ -38,7 +38,7 @@
                                 'this_quarter' => __('This Quarter'),
                                 'this_year' => __('This Year'),
                             ] as $value => $label)
-                                <a href="{{ route('accounts.profit-loss', ['period' => $value]) }}"
+                                <a href="{{ route('ui.set', ['accounts.profit-loss', 'period:'.$value]) }}"
                                    class="rounded-xl px-3 py-2 text-xs font-semibold transition
                                           {{ $period === $value ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
                                     {{ $label }}
@@ -47,7 +47,9 @@
                         </div>
                     </div>
 
-                    <form method="GET" action="{{ route('accounts.profit-loss') }}" class="flex flex-wrap items-end gap-2">
+                    <form method="POST" action="{{ route('ui.set', 'accounts.profit-loss') }}" class="flex flex-wrap items-end gap-2">
+
+                        @csrf
                         <input type="hidden" name="period" value="custom">
                         <div>
                             <label class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('From') }}</label>

@@ -89,7 +89,7 @@
 
                     @if(method_exists($certificates, 'links'))
                         <div class="border-t border-slate-100 px-4 py-3">
-                            {{ $certificates->links() }}
+                            @include('partials.clean-pagination', ['paginator' => $certificates])
                         </div>
                     @endif
                 @endif
@@ -222,10 +222,10 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if(request('bulk') || $errors->has('file'))
+                @if(session('bulk_errors') || $errors->has('file'))
                     var bulkModal = document.getElementById('bulkCertificateModal');
                     if (bulkModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(bulkModal).show();
-                @elseif($errors->any() || request('create'))
+                @elseif($errors->any() || session('open_create') === 'certificates')
                     var modal = document.getElementById('createCertificateModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

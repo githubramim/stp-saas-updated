@@ -18,13 +18,14 @@
 
             <div class="flex flex-wrap gap-2 mb-6">
                 <button type="button" class="btn btn-solid-indigo" data-bs-toggle="modal" data-bs-target="#createScheduleModal">+ New Class Schedule</button>
-                <a href="{{ route('schedules.print', request()->query()) }}" class="btn btn-outline-indigo" target="_blank">🖨 Print Routine</a>
+                <a href="{{ route('ui.set', ['schedules.print', collect(request()->only(['batch_id', 'trainer_id', 'room']))->filter()->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}" class="btn btn-outline-indigo" target="_blank">🖨 Print Routine</a>
             </div>
 
             {{-- Filters --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-4">
-                    <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-wrap items-end gap-3">
+                    <form method="POST" action="{{ route('ui.set', 'schedules.index') }}" class="flex flex-wrap items-end gap-3">
+                        @csrf
                         <div>
                             <x-input-label for="batch_id" value="Batch" />
                             <select id="batch_id" name="batch_id" class="block mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -210,7 +211,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'schedules')
                     var modal = document.getElementById('createScheduleModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

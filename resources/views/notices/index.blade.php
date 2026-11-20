@@ -67,7 +67,7 @@
                 </div>
 
                 @if(method_exists($notices, 'links'))
-                    <div class="mt-4">{{ $notices->links() }}</div>
+                    <div class="mt-4">@include('partials.clean-pagination', ['paginator' => $notices])</div>
                 @endif
             @endif
     {{-- Create Notice Modal --}}
@@ -125,7 +125,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'notices')
                     var modal = document.getElementById('createNoticeModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

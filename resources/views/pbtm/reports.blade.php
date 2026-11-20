@@ -8,7 +8,7 @@
                 </h2>
                 <p class="text-xs text-slate-400">{{ __('NSDA / SEIP-ready enrolment, attendance, stipend and placement progress.') }}</p>
             </div>
-            <a href="{{ route('pbtm.reports.csv', array_filter(['project_id' => $project?->id, 'year' => $year, 'view' => $view])) }}" class="btn btn-outline-success rounded-3 font-bold">
+            <a href="{{ route('ui.set', ['pbtm.reports.csv', collect(array_filter(['project_id' => $project?->id, 'year' => $year, 'view' => $view]))->map(fn ($v, $k) => $k.':'.rawurlencode($v))->implode('/')]) }}" class="btn btn-outline-success rounded-3 font-bold">
                 <i class="bi bi-file-earmark-excel me-1"></i> {{ __('Export CSV') }}
             </a>
         </div>
@@ -19,7 +19,8 @@
             @include('pbtm.partials.nav')
 
             <div class="mb-5 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <form method="GET" class="flex flex-wrap items-end gap-3">
+                <form method="POST" action="{{ route('ui.set', 'pbtm.reports') }}" class="flex flex-wrap items-end gap-3">
+                    @csrf
                     @if($project)
                         <input type="hidden" name="project_id" value="{{ $project->id }}">
                     @endif

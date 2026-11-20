@@ -26,7 +26,8 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-4">
-                    <form method="GET" action="{{ route('attendance.index') }}" class="flex flex-wrap items-end gap-3">
+                    <form method="POST" action="{{ route('ui.set', 'attendance.index') }}" class="flex flex-wrap items-end gap-3">
+                        @csrf
                         <div>
                             <x-input-label for="batch_id" value="Batch" />
                             <select id="batch_id" name="batch_id" class="block mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -103,7 +104,7 @@
                             </table>
                         </div>
 
-                        <div class="mt-6">{{ $sessions->links() }}</div>
+                        <div class="mt-6">@include('partials.clean-pagination', ['paginator' => $sessions])</div>
                     @endif
                 </div>
             </div>
@@ -185,7 +186,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'attendance')
                     var modal = document.getElementById('createAttendanceModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

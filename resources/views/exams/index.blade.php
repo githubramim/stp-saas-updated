@@ -27,7 +27,8 @@
             @endif
 
             <div class="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <form method="GET" action="{{ route('exams.index') }}" class="flex flex-wrap items-end gap-3">
+                <form method="POST" action="{{ route('ui.set', 'exams.index') }}" class="flex flex-wrap items-end gap-3">
+                    @csrf
                     <div class="min-w-[200px] flex-1 sm:flex-none">
                         <label for="exam_filter_batch" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400">{{ __('Batch') }}</label>
                         <select id="exam_filter_batch" name="batch_id"
@@ -115,7 +116,7 @@
                         </table>
                     </div>
 
-                    <div class="border-t border-slate-100 px-5 py-4">{{ $exams->links() }}</div>
+                    <div class="border-t border-slate-100 px-5 py-4">@include('partials.clean-pagination', ['paginator' => $exams])</div>
                 @endif
             </div>
         </div>
@@ -290,7 +291,7 @@
             });
 
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'exams')
                     var examModal = document.getElementById('createExamModal');
                     if (examModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(examModal).show();
                 @endif

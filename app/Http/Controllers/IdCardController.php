@@ -118,7 +118,7 @@ class IdCardController extends Controller
         $template->update(['design' => $this->normalizeDesign($request, $type)]);
 
         return redirect()
-            ->route('id-cards.editor', ['type' => $type])
+            ->route('ui.set', ['id-cards.editor', 'type:'.$type])
             ->with('success', 'ID card design saved.');
     }
 
@@ -137,7 +137,7 @@ class IdCardController extends Controller
 
         if ($ids->isEmpty()) {
             return redirect()
-                ->route('id-cards.index', ['type' => $type])
+                ->route('ui.set', ['id-cards.index', 'type:'.$type])
                 ->with('error', 'Select at least one person before printing.');
         }
 
@@ -159,7 +159,7 @@ class IdCardController extends Controller
 
         if ($people->isEmpty()) {
             return redirect()
-                ->route('id-cards.index', ['type' => $type])
+                ->route('ui.set', ['id-cards.index', 'type:'.$type])
                 ->with('error', 'No matching records were found for printing.');
         }
 
@@ -234,12 +234,10 @@ class IdCardController extends Controller
         // Redirect explicitly instead of using back(): the previous URL can be a
         // print preview, which would bounce the user to an empty print sheet.
         $base = route('id-cards.index');
-        $fallback = route('id-cards.index', ['type' => $type]);
+        $fallback = route('ui.set', ['id-cards.index', 'type:'.$type]);
         $returnTo = (string) $request->input('return_to', '');
 
-        $target = ($returnTo === $base || str_starts_with($returnTo, $base.'?'))
-            ? $returnTo
-            : $fallback;
+        $target = $returnTo === $base ? $returnTo : $fallback;
 
         return redirect()->to($target)->with('success', 'ID card photo updated.');
     }

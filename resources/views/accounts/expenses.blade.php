@@ -66,7 +66,8 @@
 
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="border-b border-slate-100 p-4">
-                    <form method="GET" action="{{ route('accounts.expenses') }}" class="flex flex-wrap items-end gap-2">
+                    <form method="POST" action="{{ route('ui.set', 'accounts.expenses') }}" class="flex flex-wrap items-end gap-2">
+                        @csrf
                         <div>
                             <label class="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('From') }}</label>
                             <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control form-control-sm rounded-3">
@@ -146,7 +147,7 @@
                 </div>
 
                 <div class="border-t border-slate-100 px-4 py-3">
-                    {{ $expenses->links() }}
+                    @include('partials.clean-pagination', ['paginator' => $expenses])
                 </div>
             </div>
         </div>
@@ -284,7 +285,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            @if(request('create') || ($errors->any() && !old('_editing')))
+            @if(session('open_create') === 'accounts.expenses' || ($errors->any() && !old('_editing')))
                 var createModal = document.getElementById('createExpenseModal');
                 if (createModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(createModal).show();
             @endif

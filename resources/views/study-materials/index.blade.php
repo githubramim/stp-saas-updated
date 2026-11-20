@@ -15,7 +15,8 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <form method="GET" class="flex gap-4 items-end flex-wrap">
+                    <form method="POST" action="{{ route('ui.set', 'study-materials.index') }}" class="flex gap-4 items-end flex-wrap">
+                        @csrf
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Course</label>
                             <select name="course_id" class="rounded-md border-gray-300 text-sm">
@@ -76,7 +77,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="mt-4">{{ $materials->links() }}</div>
+                        <div class="mt-4">@include('partials.clean-pagination', ['paginator' => $materials])</div>
                     @endif
                 </div>
             </div>
@@ -148,7 +149,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'study-materials')
                     var modal = document.getElementById('createStudyMaterialModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

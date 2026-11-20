@@ -24,7 +24,8 @@
             @endif
 
             <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
-                <form method="GET" action="{{ route('hr.payroll') }}" class="d-flex align-items-center gap-2">
+                <form method="POST" action="{{ route('ui.set', 'hr.payroll') }}" class="d-flex align-items-center gap-2">
+                    @csrf
                     <label for="pay_month" class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('Month') }}</label>
                     <input id="pay_month" type="month" name="month" value="{{ $month }}" class="form-control form-control-sm rounded-3" onchange="this.form.submit()">
                 </form>

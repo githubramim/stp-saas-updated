@@ -52,14 +52,14 @@
                                             </td>
                                             <td class="p-3">{{ $evaluation->is_anonymous ? 'Yes' : 'No' }}</td>
                                             <td class="p-3">
-                                                <a href="{{ route('evaluations.report') }}?trainer_id={{ $evaluation->trainer_id }}" class="btn btn-outline-indigo text-xs">Report</a>
+                                                <a href="{{ route('ui.set', ['evaluations.report', 'trainer_id:'.$evaluation->trainer_id]) }}" class="btn btn-outline-indigo text-xs">Report</a>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
-                        <div class="mt-4">{{ $evaluations->links() }}</div>
+                        <div class="mt-4">@include('partials.clean-pagination', ['paginator' => $evaluations])</div>
                     @endif
                 </div>
             </div>
@@ -135,7 +135,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'evaluations')
                     var modal = document.getElementById('createEvaluationModal');
                     if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
                 @endif

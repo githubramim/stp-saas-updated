@@ -9,7 +9,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
-                    <form method="GET" class="flex gap-4 items-end">
+                    <form method="POST" action="{{ route('ui.set', 'evaluations.report') }}" class="flex gap-4 items-end">
+                        @csrf
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Trainer</label>
                             <select name="trainer_id" onchange="this.form.submit()"

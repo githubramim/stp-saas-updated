@@ -145,7 +145,7 @@
                             <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
                                 {{ __('Use the project filter above to open a funded project profile, or create a project with donor, budget and MoU details.') }}
                             </p>
-                            <a href="{{ route('projects.index', ['create' => 1]) }}" class="btn btn-primary rounded-3 mt-4">
+                            <a href="{{ route('ui.open-create', 'projects') }}" class="btn btn-primary rounded-3 mt-4">
                                 <i class="bi bi-plus-lg me-1"></i> {{ __('Create Project') }}
                             </a>
                         </div>
@@ -168,7 +168,7 @@
                         @empty
                             <p class="text-xs text-slate-400">{{ __('No stipend records yet.') }}</p>
                         @endforelse
-                        <a href="{{ route('pbtm.stipends', array_filter(['project_id' => $project?->id])) }}" class="mt-3 inline-block text-xs font-bold text-indigo-600 hover:underline">
+                        <a href="{{ route('ui.set', ['pbtm.stipends', 'project_id:'.$project?->id]) }}" class="mt-3 inline-block text-xs font-bold text-indigo-600 hover:underline">
                             {{ __('Manage stipends') }} →
                         </a>
                     </div>
@@ -188,7 +188,7 @@
                         @empty
                             <p class="text-xs text-slate-400">{{ __('No job placements recorded yet.') }}</p>
                         @endforelse
-                        <a href="{{ route('pbtm.placements', array_filter(['project_id' => $project?->id])) }}" class="mt-3 inline-block text-xs font-bold text-indigo-600 hover:underline">
+                        <a href="{{ route('ui.set', ['pbtm.placements', 'project_id:'.$project?->id]) }}" class="mt-3 inline-block text-xs font-bold text-indigo-600 hover:underline">
                             {{ __('Manage placements') }} →
                         </a>
                     </div>

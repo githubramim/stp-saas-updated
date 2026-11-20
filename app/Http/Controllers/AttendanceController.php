@@ -39,8 +39,7 @@ class AttendanceController extends Controller
             ]))
             ->orderByDesc('session_date')
             ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+            ->paginate(15);
 
         return view('attendance.index', compact('sessions', 'batches'));
     }

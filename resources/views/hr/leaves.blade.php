@@ -63,7 +63,8 @@
                 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2">
                     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3">
                         <h3 class="text-sm font-bold text-slate-800">{{ __('Leave History') }}</h3>
-                        <form method="GET" action="{{ route('hr.leaves') }}">
+                        <form method="POST" action="{{ route('ui.set', 'hr.leaves') }}">
+                            @csrf
                             <select name="status" class="form-select form-select-sm rounded-3" onchange="this.form.submit()">
                                 <option value="all" {{ $status === 'all' ? 'selected' : '' }}>{{ __('All') }}</option>
                                 <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>

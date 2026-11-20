@@ -10,7 +10,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-4">
-                    <form method="GET" action="{{ route('attendance.monthly-report') }}" class="flex flex-wrap items-end gap-3">
+                    <form method="POST" action="{{ route('ui.set', 'attendance.monthly-report') }}" class="flex flex-wrap items-end gap-3">
+                        @csrf
                         <div>
                             <x-input-label for="batch_id" value="Batch" />
                             <select id="batch_id" name="batch_id" class="block mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -27,7 +28,7 @@
                         </div>
                         <x-primary-button>{{ __('Generate') }}</x-primary-button>
                         @if($batch)
-                            <a href="{{ route('attendance.monthly-report.csv', ['batch_id' => $batch->id, 'month' => $month->format('Y-m')]) }}"
+                            <a href="{{ route('ui.set', ['attendance.monthly-report.csv', 'batch_id:'.$batch->id.'/month:'.$month->format('Y-m')]) }}"
                                class="btn btn-outline-emerald">Export CSV</a>
                         @endif
                     </form>

@@ -161,7 +161,7 @@ class CourseController extends Controller
      */
     public function tamLookup(Request $request, TamListService $tam)
     {
-        $occupation = trim((string) $request->query('occupation', ''));
+        $occupation = trim((string) $request->input('occupation', ''));
 
         if ($occupation === '') {
             return response()->json([
@@ -176,7 +176,7 @@ class CourseController extends Controller
             ]);
         }
 
-        return response()->json($tam->lookup($occupation, $request->query('level')));
+        return response()->json($tam->lookup($occupation, $request->input('level')));
     }
 
     public function destroy(Course $course)

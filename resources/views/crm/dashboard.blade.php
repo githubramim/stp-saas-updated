@@ -12,7 +12,7 @@
                         <span class="badge bg-danger ms-1">{{ $overdueCount + $todayCount }}</span>
                     @endif
                 </a>
-                <a href="{{ route('crm.leads', ['create' => 1]) }}" class="btn btn-primary rounded-3">
+                <a href="{{ route('ui.open-create', 'crm.leads') }}" class="btn btn-primary rounded-3">
                     <i class="bi bi-plus-circle-fill me-1"></i> {{ __('New Lead') }}
                 </a>
             </div>
@@ -72,17 +72,17 @@
 
             {{-- Reminder strip --}}
             <div class="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <a href="{{ route('crm.reminders', ['bucket' => 'overdue']) }}"
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:overdue']) }}"
                    class="flex items-center justify-between rounded-xl border px-4 py-3 transition {{ $overdueCount > 0 ? 'border-rose-200 bg-rose-50 hover:bg-rose-100' : 'border-slate-200 bg-slate-50' }}">
                     <span class="text-xs font-semibold {{ $overdueCount > 0 ? 'text-rose-700' : 'text-slate-500' }}"><i class="bi bi-exclamation-triangle me-1"></i>{{ __('Overdue follow-ups') }}</span>
                     <span class="text-sm font-bold {{ $overdueCount > 0 ? 'text-rose-700' : 'text-slate-700' }}">{{ $overdueCount }}</span>
                 </a>
-                <a href="{{ route('crm.reminders', ['bucket' => 'today']) }}"
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:today']) }}"
                    class="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 transition hover:bg-amber-100">
                     <span class="text-xs font-semibold text-amber-700"><i class="bi bi-sun me-1"></i>{{ __('Due today') }}</span>
                     <span class="text-sm font-bold text-amber-700">{{ $todayCount }}</span>
                 </a>
-                <a href="{{ route('crm.reminders', ['bucket' => 'upcoming']) }}"
+                <a href="{{ route('ui.set', ['crm.reminders', 'bucket:upcoming']) }}"
                    class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 transition hover:bg-slate-100">
                     <span class="text-xs font-semibold text-slate-500"><i class="bi bi-calendar-week me-1"></i>{{ __('Next 7 days') }}</span>
                     <span class="text-sm font-bold text-slate-700">{{ $upcomingCount }}</span>

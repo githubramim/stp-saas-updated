@@ -645,7 +645,7 @@ class HRController extends Controller
             }
         });
 
-        return redirect()->route('hr.payroll', ['month' => $month])
+        return redirect()->route('ui.set', ['hr.payroll', 'month:'.$month])
             ->with('success', "Payroll generated: {$created} created, {$updated} updated, {$skipped} paid sheet(s) left untouched.");
     }
 

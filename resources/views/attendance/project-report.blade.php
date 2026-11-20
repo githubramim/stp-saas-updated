@@ -10,14 +10,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-4">
-                    <form method="GET" action="{{ route('attendance.project-report') }}" class="flex flex-wrap items-end gap-3">
+                    <form method="POST" action="{{ route('ui.set', 'attendance.project-report') }}" class="flex flex-wrap items-end gap-3">
+                        @csrf
                         <div>
                             <x-input-label for="month" value="Month" />
                             <input type="month" id="month" name="month" value="{{ $month->format('Y-m') }}"
                                    class="block mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                         </div>
                         <x-primary-button>{{ __('Generate') }}</x-primary-button>
-                        <a href="{{ route('attendance.project-report.csv', ['month' => $month->format('Y-m')]) }}"
+                        <a href="{{ route('ui.set', ['attendance.project-report.csv', 'month:'.$month->format('Y-m')]) }}"
                            class="btn btn-outline-emerald">Export CSV</a>
                     </form>
                 </div>

@@ -23,7 +23,8 @@
             @endif
 
             <div class="mb-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <form method="GET" class="flex flex-wrap items-end gap-3">
+                <form method="POST" action="{{ route('ui.set', 'pbtm.trainees') }}" class="flex flex-wrap items-end gap-3">
+                    @csrf
                     @if($project)
                         <input type="hidden" name="project_id" value="{{ $project->id }}">
                     @endif
@@ -43,7 +44,7 @@
                     <button type="submit" class="btn btn-primary btn-sm rounded-xl font-bold">
                         <i class="bi bi-funnel me-1"></i> {{ __('Filter') }}
                     </button>
-                    <a href="{{ route('pbtm.trainees', array_filter(['project_id' => $project?->id])) }}" class="btn btn-light btn-sm rounded-xl border">{{ __('Reset') }}</a>
+                    <a href="{{ route('ui.set', ['pbtm.trainees', 'project_id:'.$project?->id]) }}" class="btn btn-light btn-sm rounded-xl border">{{ __('Reset') }}</a>
                 </form>
             </div>
 

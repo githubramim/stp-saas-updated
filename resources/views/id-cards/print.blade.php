@@ -79,7 +79,7 @@
 </head>
 <body>
     <div class="toolbar">
-        <a href="{{ route('id-cards.index', ['type' => $type]) }}">&larr; Back to ID cards</a>
+        <a href="{{ route('ui.set', ['id-cards.index', 'type:'.$type]) }}">&larr; Back to ID cards</a>
         <div class="meta">
             <strong>{{ $people->count() }}</strong> {{ $type === 'student' ? 'student' : 'employee' }}{{ $people->count() === 1 ? '' : 's' }}
             &middot; {{ $people->count() * 2 }} sides &middot; A4

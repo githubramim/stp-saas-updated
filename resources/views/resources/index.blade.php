@@ -129,7 +129,7 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                @if($errors->any() || request('create'))
+                @if($errors->any() || session('open_create') === 'resources')
                     var resourceModal = document.getElementById('createResourceModal');
                     if (resourceModal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(resourceModal).show();
                 @endif

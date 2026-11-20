@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\MergeCleanParams;
 use App\Http\Middleware\SetBranchScope;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,7 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // for authenticated institute users so the "branch" global scope on
         // Student/Transaction filters every query to that branch only.
         // Appended to the web group so it runs after StartSession/auth.
-        $middleware->web(append: SetBranchScope::class);
+        $middleware->web(append: [
+            SetBranchScope::class,
+            MergeCleanParams::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

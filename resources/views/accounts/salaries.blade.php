@@ -6,7 +6,8 @@
                 <p class="text-xs text-slate-400">{{ __('Generate monthly payroll, mark payments and post salary expenses to the ledger.') }}</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
-                <form method="GET" action="{{ route('accounts.salaries') }}" class="d-flex align-items-center gap-2">
+                <form method="POST" action="{{ route('ui.set', 'accounts.salaries') }}" class="d-flex align-items-center gap-2">
+                    @csrf
                     <label for="salary_month" class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('Month') }}</label>
                     <select id="salary_month" name="month" class="form-select form-select-sm rounded-3" onchange="this.form.submit()">
                         @foreach($months as $option)
@@ -57,7 +58,7 @@
                     <div class="text-sm font-bold text-slate-800">{{ \Illuminate\Support\Carbon::createFromFormat('Y-m', $month)->format('F Y') }}</div>
                     <div class="text-xs text-slate-400">{{ __('Payroll month') }}</div>
                 </div>
-                <a href="{{ route('accounts.expenses', ['category' => config('accounts.salary_category', 'Salary')]) }}" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
+                <a href="{{ route('ui.set', ['accounts.expenses', 'category:'.rawurlencode(config('accounts.salary_category', 'Salary'))]) }}" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800">
                     {{ __('View salary expenses in ledger') }} →
                 </a>
             </div>
@@ -83,7 +84,8 @@
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3">
                     <h3 class="text-sm font-bold text-slate-800">{{ __('Payroll Register') }}</h3>
-                    <form method="GET" action="{{ route('accounts.salaries') }}" class="d-flex align-items-center gap-2">
+                    <form method="POST" action="{{ route('ui.set', 'accounts.salaries') }}" class="d-flex align-items-center gap-2">
+                        @csrf
                         <input type="hidden" name="month" value="{{ $month }}">
                         <label for="salary_status" class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('Status') }}</label>
                         <select id="salary_status" name="status" class="form-select form-select-sm rounded-3" onchange="this.form.submit()">

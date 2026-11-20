@@ -8,7 +8,7 @@
                 </h2>
                 <p class="mt-1 text-xs text-slate-500">{{ __('Photo ID cards with QR verification, a front/back design editor and batch PDF printing.') }}</p>
             </div>
-            <a href="{{ route('id-cards.editor', ['type' => $type]) }}"
+            <a href="{{ route('ui.set', ['id-cards.editor', 'type:'.$type]) }}"
                class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
                 <i class="bi bi-sliders2"></i>
                 {{ __('Design Editor') }}
@@ -63,13 +63,13 @@
             <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="inline-flex rounded-xl border border-slate-200 bg-slate-100 p-1">
-                        <a href="{{ route('id-cards.index', ['type' => 'student']) }}"
+                        <a href="{{ route('ui.set', ['id-cards.index', 'type:student']) }}"
                            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition {{ $type === 'student' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             <i class="bi bi-mortarboard"></i>
                             {{ __('Students') }}
                             <span class="rounded-full bg-slate-100 px-1.5 text-[11px] font-bold text-slate-500">{{ number_format($counts['student']) }}</span>
                         </a>
-                        <a href="{{ route('id-cards.index', ['type' => 'employee']) }}"
+                        <a href="{{ route('ui.set', ['id-cards.index', 'type:employee']) }}"
                            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition {{ $type === 'employee' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
                             <i class="bi bi-person-badge"></i>
                             {{ __('Employees') }}
@@ -79,7 +79,9 @@
                     <p class="text-xs text-slate-500">{{ __(':n record(s) match the current filters', ['n' => $people->count()]) }}</p>
                 </div>
 
-                <form method="GET" action="{{ route('id-cards.index') }}" class="mt-4 flex flex-wrap items-end gap-3">
+                <form method="POST" action="{{ route('ui.set', 'id-cards.index') }}" class="mt-4 flex flex-wrap items-end gap-3">
+
+                    @csrf
                     <input type="hidden" name="type" value="{{ $type }}">
 
                     <div class="min-w-[220px] flex-1">
@@ -140,7 +142,7 @@
                             <i class="bi bi-funnel-fill"></i>
                             {{ __('Apply') }}
                         </button>
-                        <a href="{{ route('id-cards.index', ['type' => $type]) }}"
+                        <a href="{{ route('ui.set', ['id-cards.index', 'type:'.$type]) }}"
                            class="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-50 hover:text-slate-700">
                             {{ __('Reset') }}
                         </a>
@@ -150,7 +152,8 @@
 
             {{-- Selectable list + print form --}}
             <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <form id="printForm" method="GET" action="{{ route('id-cards.print') }}">
+                <form id="printForm" method="POST" action="{{ route('ui.set', 'id-cards.print') }}">
+                    @csrf
                     <input type="hidden" name="type" value="{{ $type }}">
 
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
@@ -245,7 +248,7 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="flex items-center justify-end gap-1">
-                                                    <a href="{{ route('id-cards.print', ['type' => $type, 'ids' => [$person['id']]]) }}"
+                                                    <a href="{{ route('ui.set', ['id-cards.print', 'type:'.$type.'/ids:'.$person['id']]) }}"
                                                        target="_blank" rel="noopener"
                                                        title="{{ __('Preview / print card') }}"
                                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-600">

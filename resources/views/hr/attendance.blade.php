@@ -17,7 +17,8 @@
             @endif
 
             <div class="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <form method="GET" action="{{ route('hr.attendance') }}" class="row g-2 align-items-end">
+                <form method="POST" action="{{ route('ui.set', 'hr.attendance') }}" class="row g-2 align-items-end">
+                    @csrf
                     <div class="col-auto">
                         <label for="att_date" class="form-label text-[11px] font-bold uppercase text-slate-400">{{ __('Date') }}</label>
                         <input id="att_date" type="date" name="date" value="{{ $date }}" class="form-control form-control-sm rounded-3">

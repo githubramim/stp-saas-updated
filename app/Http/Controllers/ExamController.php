@@ -31,8 +31,7 @@ class ExamController extends Controller
             ->when($request->batch_id, fn ($q) => $q->where('batch_id', $request->batch_id))
             ->orderByDesc('exam_date')
             ->orderByDesc('id')
-            ->paginate(15)
-            ->withQueryString();
+            ->paginate(15);
 
         $project = Project::find($this->getProjectId());
 

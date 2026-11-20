@@ -172,8 +172,7 @@ class AccountController extends Controller
 
         $expenses = $query->orderByDesc('transaction_date')
             ->orderByDesc('id')
-            ->paginate(20)
-            ->withQueryString();
+            ->paginate(20);
 
         $todayTotal = (float) Transaction::where('institute_id', $instituteId)
             ->where('type', 'expense')
@@ -382,7 +381,7 @@ class AccountController extends Controller
             }
         });
 
-        return redirect()->route('accounts.salaries', ['month' => $month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$month])
             ->with('success', "Salary sheet generated: {$created} created, {$updated} updated, {$skipped} paid sheet(s) left untouched.");
     }
 
@@ -406,7 +405,7 @@ class AccountController extends Controller
             'notes' => $data['notes'] ?? null,
         ]);
 
-        return redirect()->route('accounts.salaries', ['month' => $salarySheet->month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$salarySheet->month])
             ->with('success', 'Salary sheet updated.');
     }
 
@@ -449,7 +448,7 @@ class AccountController extends Controller
             ]);
         });
 
-        return redirect()->route('accounts.salaries', ['month' => $salarySheet->month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$salarySheet->month])
             ->with('success', 'Salary paid and an expense transaction was recorded automatically.');
     }
 
@@ -471,7 +470,7 @@ class AccountController extends Controller
             ]);
         });
 
-        return redirect()->route('accounts.salaries', ['month' => $salarySheet->month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$salarySheet->month])
             ->with('success', 'Salary payment reverted and its expense transaction removed.');
     }
 
@@ -521,7 +520,7 @@ class AccountController extends Controller
             }
         });
 
-        return redirect()->route('accounts.salaries', ['month' => $month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$month])
             ->with('success', $sheets->count().' salary sheet(s) paid. Expenses were recorded automatically.');
     }
 
@@ -537,7 +536,7 @@ class AccountController extends Controller
         $month = $salarySheet->month;
         $salarySheet->delete();
 
-        return redirect()->route('accounts.salaries', ['month' => $month])
+        return redirect()->route('ui.set', ['accounts.salaries', 'month:'.$month])
             ->with('success', 'Salary sheet deleted.');
     }
 

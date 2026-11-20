@@ -29,6 +29,18 @@
                         </div>
 
                         <div class="mt-4">
+                            <x-input-label for="branch_id" value="Branch" />
+                            <select id="branch_id" name="branch_id" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" {{ (int) old('branch_id', $project->branch_id ?? \App\Support\BranchContext::scopeId()) === $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('branch_id')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
                             <x-input-label for="description" value="Description" />
                             <textarea id="description" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" name="description" rows="3">{{ old('description') }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />

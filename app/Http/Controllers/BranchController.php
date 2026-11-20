@@ -158,6 +158,10 @@ class BranchController extends Controller
             return back()->with('error', 'Selected branch could not be activated.');
         }
 
+        // Project context belongs to a branch too — never carry the previous
+        // branch's selected project into the new one.
+        session()->forget('current_project_id');
+
         $branch = Branch::find($data['branch_id']);
 
         return back()->with('success', 'Switched to '.$branch?->name.'.');

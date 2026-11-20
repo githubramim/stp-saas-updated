@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
+    /** Branch isolation: only the project of the selected branch is queryable. */
+    use BelongsToBranch;
+
     protected $fillable = [
-        'institute_id', 'name', 'name_bn', 'code', 'description', 'status',
+        'institute_id', 'branch_id', 'name', 'name_bn', 'code', 'description', 'status',
         'donor_name', 'donor_type', 'budget_amount', 'mou_number', 'mou_file_path',
         'start_date', 'end_date', 'target_trainees', 'coordinator_name', 'coordinator_contact',
     ];
@@ -27,6 +31,11 @@ class Project extends Model
     public function institute(): BelongsTo
     {
         return $this->belongsTo(Institute::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function courses(): HasMany

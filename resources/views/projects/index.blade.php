@@ -3,7 +3,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-lg font-semibold leading-tight text-slate-800">{{ __('Projects & Schemes') }}</h2>
-                <p class="text-xs text-slate-400">{{ __('Manage every project under your institute.') }}</p>
+                <p class="text-xs text-slate-400">{{ __('Manage projects of the currently selected branch.') }}</p>
             </div>
             <button type="button" class="btn-solid-indigo" data-bs-toggle="modal" data-bs-target="#createProjectModal" aria-label="{{ __('New Project') }}">
                 <i class="bi bi-plus-lg"></i>
@@ -111,6 +111,17 @@
                                 <label for="create_project_code" class="form-label fw-semibold text-slate-700 small">{{ __('Project Code') }}</label>
                                 <input id="create_project_code" type="text" name="code" value="{{ old('code') }}"
                                        class="form-control rounded-3 font-monospace" placeholder="{{ __('e.g. ASSES') }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="create_project_branch" class="form-label fw-semibold text-slate-700 small">{{ __('Branch') }}</label>
+                                <select id="create_project_branch" name="branch_id" class="form-select rounded-3">
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ (int) old('branch_id', \App\Support\BranchContext::scopeId()) === $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('branch_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-12">
                                 <div class="d-flex align-items-center gap-2 rounded-3 bg-indigo-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-indigo-700">

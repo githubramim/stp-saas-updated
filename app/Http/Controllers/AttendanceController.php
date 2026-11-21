@@ -18,7 +18,7 @@ class AttendanceController extends Controller
 {
     private function getProjectId()
     {
-        return session('current_project_id', optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id);
+        return (int) session('current_project_id', (int) (optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id ?? 0));
     }
 
     public function index(Request $request)
@@ -72,7 +72,7 @@ class AttendanceController extends Controller
         ]);
 
         $batch = Batch::findOrFail($request->batch_id);
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $sessionDate = Carbon::parse($request->session_date);
 
@@ -348,11 +348,15 @@ class AttendanceController extends Controller
         ]);
 
         $batch = $request->batch_id
-            ? Batch::where('institute_id', Auth::user()->institute_id)->findOrFail($request->batch_id)
+            ? Batch::findOrFail($request->batch_id)
             : Batch::where('institute_id', Auth::user()->institute_id)
                 ->where('project_id', $this->getProjectId())
                 ->orderBy('name')
                 ->first();
+
+        if ($batch) {
+            $this->assertBranchContext($batch, ['project']);
+        }
 
         $month = $request->month
             ? Carbon::createFromFormat('Y-m', $request->month)->startOfMonth()
@@ -460,7 +464,7 @@ class AttendanceController extends Controller
 
     private function scopedSession(AttendanceSession $attendanceSession): AttendanceSession
     {
-        abort_if($attendanceSession->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($attendanceSession, ['project', 'batch.project']);
 
         return $attendanceSession;
     }

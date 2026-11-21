@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,8 @@ use Illuminate\Support\Carbon;
 
 class AttendanceSession extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_OPEN = 'open';
 
     public const STATUS_CLOSED = 'closed';
@@ -120,6 +123,14 @@ class AttendanceSession extends Model
             'absent' => $absent,
             'marked' => $present + $late + $absent,
             'total' => $this->students()->count(),
+        ];
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['batch.project', 'projects.branch_id'],
         ];
     }
 }

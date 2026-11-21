@@ -22,7 +22,8 @@ class ExportController extends Controller
         $query = Transaction::where('institute_id', $instituteId);
 
         if ($projectId) {
-            $query->where('project_id', $projectId);
+            // Transactions inherit their project through the student.
+            $query->whereHas('student', fn ($q) => $q->where('project_id', $projectId));
         }
 
         if ($request->type) {

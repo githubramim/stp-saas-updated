@@ -89,12 +89,12 @@ class CrmController extends Controller
 
     private function ensureLead(Lead $lead): void
     {
-        abort_if($lead->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($lead, ['project', 'assignedTo']);
     }
 
     private function ensureFollowUp(LeadFollowUp $followUp): void
     {
-        abort_if($followUp->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($followUp, ['user', 'lead.project']);
     }
 
     private function logMessage(Lead $lead, string $channel, string $body, string $status = 'sent', ?array $response = null, string $direction = 'outbound'): LeadMessage
@@ -672,6 +672,11 @@ class CrmController extends Controller
         $batch = $batchId ? Batch::where('institute_id', $instituteId)->find($batchId) : null;
         $course = $courseId ? Course::where('institute_id', $instituteId)->find($courseId) : null;
 
+        // The global scopes above resolve only branch-visible parents; a
+        // posted id from another branch must never be linked to the student.
+        abort_if($batchId && ! $batch, 404);
+        abort_if($courseId && ! $course, 404);
+
         if ($batch && $course && $batch->course_id && $batch->course_id !== $course->id) {
             return back()->withInput()->with('error', 'The selected batch does not belong to the selected course.');
         }
@@ -686,6 +691,7 @@ class CrmController extends Controller
 
             $student = Student::create([
                 'institute_id' => $instituteId,
+                'branch_id' => BranchContext::scopeId(),
                 'project_id' => $batch?->project_id ?? $course?->project_id ?? $lead->project_id,
                 'course_id' => $courseId,
                 'batch_id' => $batchId,

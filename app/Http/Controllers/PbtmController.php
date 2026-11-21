@@ -151,7 +151,7 @@ class PbtmController extends Controller
     public function updateTraineeStatus(Request $request, Student $student)
     {
         $this->guard();
-        abort_if($student->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($student);
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(array_keys($this->traineeStatuses()))],
@@ -259,7 +259,7 @@ class PbtmController extends Controller
     public function payStipend(Request $request, Stipend $stipend)
     {
         $this->guard();
-        abort_if($stipend->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($stipend, ['student', 'project']);
 
         $validated = $request->validate([
             'payment_method' => ['nullable', 'string', 'max:50'],
@@ -279,7 +279,7 @@ class PbtmController extends Controller
     public function destroyStipend(Stipend $stipend)
     {
         $this->guard();
-        abort_if($stipend->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($stipend, ['student', 'project']);
 
         $stipend->delete();
 
@@ -363,7 +363,7 @@ class PbtmController extends Controller
     public function returnAsset(Request $request, ProjectAsset $asset)
     {
         $this->guard();
-        abort_if($asset->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($asset, ['student', 'project']);
 
         $validated = $request->validate([
             'condition' => ['nullable', 'string', 'max:100'],
@@ -381,7 +381,7 @@ class PbtmController extends Controller
     public function destroyAsset(ProjectAsset $asset)
     {
         $this->guard();
-        abort_if($asset->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($asset, ['student', 'project']);
 
         $asset->delete();
 
@@ -459,7 +459,7 @@ class PbtmController extends Controller
     public function destroyPlacement(JobPlacement $placement)
     {
         $this->guard();
-        abort_if($placement->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($placement, ['student', 'project']);
 
         $placement->delete();
 

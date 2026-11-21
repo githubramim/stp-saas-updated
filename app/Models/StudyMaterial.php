@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudyMaterial extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'course_id', 'batch_id', 'uploaded_by',
         'title', 'description', 'file_path', 'file_type',
@@ -31,5 +34,14 @@ class StudyMaterial extends Model
     public function uploadedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['batch.project', 'projects.branch_id'],
+            ['course.project', 'projects.branch_id'],
+            ['uploadedBy', 'users.branch_id'],
+        ];
     }
 }

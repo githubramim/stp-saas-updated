@@ -2,19 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Stipend extends Model
 {
+    use BelongsToBranch;
+
     public const TYPE_STIPEND = 'stipend';
+
     public const TYPE_ALLOWANCE = 'allowance';
+
     public const TYPE_TRANSPORT = 'transport';
+
     public const TYPE_FOOD = 'food';
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
@@ -67,10 +75,18 @@ class Stipend extends Model
 
     public function periodLabel(): string
     {
-        if (!$this->period || !preg_match('/^\d{4}-\d{2}$/', $this->period)) {
-            return $this->period ?: '—';
+        if (! $this->period || ! preg_match('/^\d{4}-\d{2}$/', $this->period)) {
+            return $this->period ?: 'â€”';
         }
 
-        return \Carbon\Carbon::createFromFormat('Y-m', $this->period)->format('M Y');
+        return Carbon::createFromFormat('Y-m', $this->period)->format('M Y');
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['student', 'students.branch_id'],
+        ];
     }
 }

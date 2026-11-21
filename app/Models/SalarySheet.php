@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class SalarySheet extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_DRAFT = 'draft';
 
     public const STATUS_PAID = 'paid';
@@ -60,7 +64,7 @@ class SalarySheet extends Model
     public function monthLabel(): string
     {
         try {
-            return \Illuminate\Support\Carbon::createFromFormat('Y-m', $this->month)->format('F Y');
+            return Carbon::createFromFormat('Y-m', $this->month)->format('F Y');
         } catch (\Throwable) {
             return (string) $this->month;
         }
@@ -69,5 +73,12 @@ class SalarySheet extends Model
     public function scopeForMonth($query, string $month)
     {
         return $query->where('month', $month);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+        ];
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lead extends Model
 {
+    use BelongsToBranch;
+
     public const SOURCE_FACEBOOK = 'facebook';
 
     public const SOURCE_WEBSITE = 'website';
@@ -207,5 +210,13 @@ class Lead extends Model
             ->value('scheduled_at');
 
         $this->forceFill(['next_follow_up_at' => $next])->save();
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['assignedTo', 'users.branch_id'],
+        ];
     }
 }

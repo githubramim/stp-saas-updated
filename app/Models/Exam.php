@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exam extends Model
 {
+    use BelongsToBranch;
+
     public const TYPE_MCQ = 'mcq';
 
     public const TYPE_WRITTEN = 'written';
@@ -86,7 +89,7 @@ class Exam extends Model
     }
 
     /**
-     * Sum of question marks — the authoritative total for the marksheet.
+     * Sum of question marks â€” the authoritative total for the marksheet.
      */
     public function calculatedTotalMarks(): float
     {
@@ -96,5 +99,13 @@ class Exam extends Model
     public function mcqTotalMarks(): float
     {
         return round((float) $this->questions->where('question_type', ExamQuestion::TYPE_MCQ)->sum('marks'), 2);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['batch.project', 'projects.branch_id'],
+        ];
     }
 }

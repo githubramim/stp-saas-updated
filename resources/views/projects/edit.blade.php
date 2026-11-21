@@ -39,15 +39,12 @@
                         </div>
 
                         <div class="mt-4">
-                            <x-input-label for="branch_id" value="Branch" />
-                            <select id="branch_id" name="branch_id" class="block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ (int) old('branch_id', $project->branch_id) === $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('branch_id')" class="mt-2" />
+                            <x-input-label value="Branch" />
+                            <div class="block mt-1 w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm font-semibold text-slate-600">
+                                {{ $branches->firstWhere('id', $project->branch_id)?->name ?? '—' }}
+                            </div>
+                            {{-- Projects cannot be moved to another branch through this form. --}}
+                            <input type="hidden" name="branch_id" value="{{ $project->branch_id }}">
                         </div>
 
                         <div class="mt-4">

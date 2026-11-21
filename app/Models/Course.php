@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'project_id', 'name', 'name_bn', 'course_code', 'ntvqf_level',
         'tam_sector', 'tam_occupation', 'duration', 'duration_hours', 'fee',
@@ -46,5 +49,12 @@ class Course extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+        ];
     }
 }

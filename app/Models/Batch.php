@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Batch extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'project_id', 'course_id', 'trainer_id', 'name', 'name_bn',
         'start_date', 'end_date', 'shift', 'seat_capacity', 'status',
@@ -55,5 +58,13 @@ class Batch extends Model
     public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['trainer', 'users.branch_id'],
+        ];
     }
 }

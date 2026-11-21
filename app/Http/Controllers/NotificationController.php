@@ -70,7 +70,7 @@ class NotificationController extends Controller
         ]);
 
         $batch = Batch::findOrFail($request->batch_id);
-        abort_if($batch->institute_id !== $instituteId, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $students = Student::where('batch_id', $request->batch_id)
             ->whereIn('status', ['admitted', 'active'])

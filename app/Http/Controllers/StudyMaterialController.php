@@ -18,7 +18,7 @@ class StudyMaterialController extends Controller
 
         $query = StudyMaterial::with(['course', 'batch', 'uploadedBy'])
             ->where('institute_id', $instituteId)
-            ->whereHas('course', fn($q) => $q->where('project_id', $projectId));
+            ->whereHas('course', fn ($q) => $q->where('project_id', $projectId));
 
         if ($request->course_id) {
             $query->where('course_id', $request->course_id);
@@ -74,7 +74,11 @@ class StudyMaterialController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
-        abort_if($course->institute_id !== $instituteId, 403);
+        $this->assertBranchContext($course, ['project']);
+
+        if ($request->batch_id) {
+            $this->assertBranchContext(Batch::findOrFail($request->batch_id), ['project']);
+        }
 
         $file = $request->file('file');
         $path = $file->store('study-materials', 'public');
@@ -98,14 +102,14 @@ class StudyMaterialController extends Controller
 
     public function download(StudyMaterial $studyMaterial)
     {
-        abort_if($studyMaterial->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($studyMaterial, ['batch.project', 'course.project', 'uploadedBy']);
 
-        return Storage::disk('public')->download($studyMaterial->file_path, $studyMaterial->title . '.' . $studyMaterial->file_type);
+        return Storage::disk('public')->download($studyMaterial->file_path, $studyMaterial->title.'.'.$studyMaterial->file_type);
     }
 
     public function destroy(StudyMaterial $studyMaterial)
     {
-        abort_if($studyMaterial->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($studyMaterial, ['batch.project', 'course.project', 'uploadedBy']);
 
         Storage::disk('public')->delete($studyMaterial->file_path);
         $studyMaterial->delete();

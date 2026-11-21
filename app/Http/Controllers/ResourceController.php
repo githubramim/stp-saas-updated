@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Resource;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -46,6 +47,7 @@ class ResourceController extends Controller
 
         $resource = Resource::create([
             'institute_id' => Auth::user()->institute_id,
+            'branch_id' => BranchContext::scopeId(),
             'resource_name' => $request->resource_name,
             'resource_code' => $request->resource_code,
             'location_lab' => $request->location_lab,
@@ -63,7 +65,7 @@ class ResourceController extends Controller
 
     public function edit(Resource $resource)
     {
-        abort_if($resource->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($resource);
 
         $courses = Course::where('institute_id', Auth::user()->institute_id)
             ->where('status', 'active')
@@ -74,11 +76,11 @@ class ResourceController extends Controller
 
     public function update(Request $request, Resource $resource)
     {
-        abort_if($resource->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($resource);
 
         $request->validate([
             'resource_name' => 'required|string|max:255',
-            'resource_code' => 'required|string|unique:resources,resource_code,' . $resource->id,
+            'resource_code' => 'required|string|unique:resources,resource_code,'.$resource->id,
             'location_lab' => 'required|string|max:255',
             'condition' => 'required|in:good,damaged,under_maintenance',
             'description' => 'nullable|string',
@@ -100,7 +102,7 @@ class ResourceController extends Controller
 
     public function destroy(Resource $resource)
     {
-        abort_if($resource->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($resource);
         $resource->delete();
 
         return redirect()->route('resources.index')

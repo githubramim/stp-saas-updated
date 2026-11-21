@@ -2,17 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_PRESENT = 'present';
+
     public const STATUS_LATE = 'late';
+
     public const STATUS_ABSENT = 'absent';
 
     public const METHOD_QR = 'qr';
+
     public const METHOD_MANUAL = 'manual';
+
     public const METHOD_AUTO = 'auto';
 
     protected $fillable = [
@@ -50,5 +57,13 @@ class Attendance extends Model
     public function markedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'marked_by');
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['student', 'students.branch_id'],
+            ['batch.project', 'projects.branch_id'],
+        ];
     }
 }

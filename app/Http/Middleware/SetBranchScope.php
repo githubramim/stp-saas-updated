@@ -31,6 +31,7 @@ class SetBranchScope
                 // newly selected branch through the session context.
                 if ($request->session()->has('current_project_id')
                     && ! Project::where('institute_id', Auth::user()->institute_id)
+                        ->where('branch_id', $branch->id)
                         ->whereKey((int) $request->session()->get('current_project_id'))
                         ->exists()) {
                     $request->session()->forget('current_project_id');

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExamResult extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'exam_id', 'student_id', 'batch_id',
         'total_marks', 'obtained_marks', 'percentage',
@@ -190,5 +193,13 @@ class ExamResult extends Model
         $points = (float) $results->sum(fn ($r) => (float) $r->grade_point * (float) $r->total_marks);
 
         return $credits > 0 ? round($points / $credits, 2) : 0.0;
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['student', 'students.branch_id'],
+            ['exam.project', 'projects.branch_id'],
+        ];
     }
 }

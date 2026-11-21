@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JobPlacement extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_PLACED = 'placed';
+
     public const STATUS_RETAINED = 'retained';
+
     public const STATUS_DROPPED = 'dropped';
 
     protected $fillable = [
@@ -57,5 +62,13 @@ class JobPlacement extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['student', 'students.branch_id'],
+        ];
     }
 }

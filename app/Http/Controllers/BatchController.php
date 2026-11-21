@@ -13,8 +13,9 @@ class BatchController extends Controller
 {
     private function getProjectId()
     {
-        return session('current_project_id', optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id);
+        return (int) session('current_project_id', (int) (optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id ?? 0));
     }
+
     public function index()
     {
         $batches = Batch::with('course')
@@ -55,10 +56,11 @@ class BatchController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
-        abort_if($course->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($course, ['project']);
 
         Batch::create([
             'institute_id' => Auth::user()->institute_id,
+            'project_id' => $course->project_id,
             'course_id' => $request->course_id,
             'name' => $request->name,
             'name_bn' => $request->name_bn,
@@ -73,7 +75,7 @@ class BatchController extends Controller
 
     public function edit(Batch $batch)
     {
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $courses = Course::where('institute_id', Auth::user()->institute_id)
             ->where('status', 'active')
@@ -86,7 +88,7 @@ class BatchController extends Controller
 
     public function update(Request $request, Batch $batch)
     {
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $request->validate([
             'course_id' => 'required|exists:courses,id',
@@ -99,10 +101,11 @@ class BatchController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
-        abort_if($course->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($course, ['project']);
+        $request->merge(['project_id' => $course->project_id]);
 
         $batch->update($request->only([
-            'course_id', 'name', 'name_bn', 'start_date', 'end_date', 'shift', 'seat_capacity',
+            'project_id', 'course_id', 'name', 'name_bn', 'start_date', 'end_date', 'shift', 'seat_capacity',
         ]));
 
         return redirect()->route('batches.index')->with('success', 'Batch updated successfully.');
@@ -110,7 +113,7 @@ class BatchController extends Controller
 
     public function inlineStore(Request $request, Project $project)
     {
-        abort_if($project->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($project);
 
         $request->validate([
             'course_id' => 'required|exists:courses,id',
@@ -123,7 +126,7 @@ class BatchController extends Controller
         ]);
 
         $course = Course::findOrFail($request->course_id);
-        abort_if($course->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($course, ['project']);
         abort_if($course->project_id !== $project->id, 403);
 
         Batch::create([
@@ -138,13 +141,13 @@ class BatchController extends Controller
             'seat_capacity' => $request->seat_capacity,
         ]);
 
-        return Redirect::to(route('projects.dashboard', $project) . '#batches')
+        return Redirect::to(route('projects.dashboard', $project).'#batches')
             ->with('success', 'Batch created successfully.');
     }
 
     public function destroy(Batch $batch)
     {
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
         $batch->delete();
 
         return redirect()->route('batches.index')->with('success', 'Batch deleted successfully.');

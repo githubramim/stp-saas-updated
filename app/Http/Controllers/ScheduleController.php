@@ -16,7 +16,7 @@ class ScheduleController extends Controller
 {
     private function getProjectId()
     {
-        return session('current_project_id', optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id);
+        return (int) session('current_project_id', (int) (optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id ?? 0));
     }
 
     private function projectBatches()
@@ -144,7 +144,7 @@ class ScheduleController extends Controller
 
     public function edit(Schedule $schedule)
     {
-        abort_if($schedule->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($schedule, ['project', 'batch.project', 'trainer']);
 
         $batches = $this->projectBatches();
         $trainers = $this->projectTrainers();
@@ -155,7 +155,7 @@ class ScheduleController extends Controller
 
     public function update(Request $request, Schedule $schedule)
     {
-        abort_if($schedule->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($schedule, ['project', 'batch.project', 'trainer']);
 
         $data = $this->validatedSchedule($request, $schedule);
 
@@ -169,7 +169,7 @@ class ScheduleController extends Controller
 
     public function destroy(Schedule $schedule)
     {
-        abort_if($schedule->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($schedule, ['project', 'batch.project', 'trainer']);
 
         $schedule->delete();
 
@@ -203,12 +203,18 @@ class ScheduleController extends Controller
             'remarks' => 'nullable|string|max:1000',
         ]);
 
-        $batch = Batch::find($request->batch_id);
-        abort_if($batch && $batch->institute_id !== Auth::user()->institute_id, 403);
+        // Let the validator report missing/invalid ids; only guard records
+        // that actually resolve so validation errors stay user-friendly.
+        $batch = $request->filled('batch_id') ? Batch::find($request->batch_id) : null;
+        if ($batch) {
+            $this->assertBranchContext($batch, ['project']);
+        }
 
-        if ($request->trainer_id) {
+        if ($request->filled('trainer_id')) {
             $trainer = User::find($request->trainer_id);
-            abort_if($trainer && $trainer->institute_id !== Auth::user()->institute_id, 403);
+            if ($trainer) {
+                $this->assertBranchContext($trainer);
+            }
         }
 
         // Custom clash rule: runs after the built-in rules, so the error

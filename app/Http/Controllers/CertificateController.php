@@ -52,9 +52,18 @@ class CertificateController extends Controller
             'title' => 'required|string|max:255',
             'issued_date' => 'nullable|date',
         ]);
+        if (! empty($validated['student_id'])) {
+            $this->assertBranchContext(Student::findOrFail($validated['student_id']));
+        }
+
+        if (! empty($validated['exam_id'])) {
+            $this->assertBranchContext(Exam::findOrFail($validated['exam_id']), ['project', 'batch.project']);
+        }
+
         $validated['certificate_no'] = 'CERT-'.strtoupper(uniqid());
         $validated['verification_code'] = strtoupper(bin2hex(random_bytes(8)));
         $validated['institute_id'] = auth()->user()->institute_id ?? null;
+        $validated['branch_id'] = BranchContext::scopeId();
         Certificate::create($validated);
 
         return redirect()->route('certificates.index')->with('success', 'Certificate created.');
@@ -265,6 +274,7 @@ class CertificateController extends Controller
             try {
                 Certificate::create([
                     'institute_id' => $instituteId,
+                    'branch_id' => BranchContext::scopeId(),
                     'student_id' => $student?->id,
                     'exam_id' => $exam?->id,
                     'certificate_no' => 'CERT-'.strtoupper((string) Str::ulid()),
@@ -302,16 +312,22 @@ class CertificateController extends Controller
 
     public function show(Certificate $certificate)
     {
+        $this->assertBranchContext($certificate, ['student', 'exam.project', 'exam.batch.project']);
+
         return view('certificates.show', compact('certificate'));
     }
 
     public function edit(Certificate $certificate)
     {
+        $this->assertBranchContext($certificate, ['student', 'exam.project', 'exam.batch.project']);
+
         return view('certificates.edit', compact('certificate'));
     }
 
     public function update(Request $request, Certificate $certificate)
     {
+        $this->assertBranchContext($certificate, ['student', 'exam.project', 'exam.batch.project']);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'issued_date' => 'nullable|date',
@@ -323,6 +339,8 @@ class CertificateController extends Controller
 
     public function destroy(Certificate $certificate)
     {
+        $this->assertBranchContext($certificate, ['student', 'exam.project', 'exam.batch.project']);
+
         $certificate->delete();
 
         return redirect()->route('certificates.index')->with('success', 'Deleted.');

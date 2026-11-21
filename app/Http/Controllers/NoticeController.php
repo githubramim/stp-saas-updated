@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notice;
+use App\Support\BranchContext;
 use Illuminate\Http\Request;
 
 class NoticeController extends Controller
@@ -10,6 +11,7 @@ class NoticeController extends Controller
     public function index()
     {
         $notices = Notice::active()->orderByDesc('is_pinned')->latest()->paginate(20);
+
         return view('notices.index', compact('notices'));
     }
 
@@ -28,26 +30,34 @@ class NoticeController extends Controller
         ]);
         $validated['is_pinned'] = $request->boolean('is_pinned');
         $validated['institute_id'] = auth()->user()->institute_id ?? null;
+        $validated['branch_id'] = BranchContext::scopeId();
         $validated['created_by'] = auth()->id();
         if ($request->hasFile('attachment')) {
             $validated['attachment'] = $request->file('attachment')->store('notices', 'public');
         }
         Notice::create($validated);
+
         return redirect()->route('notices.index')->with('success', 'Notice created.');
     }
 
     public function show(Notice $notice)
     {
+        $this->assertBranchContext($notice);
+
         return view('notices.show', compact('notice'));
     }
 
     public function edit(Notice $notice)
     {
+        $this->assertBranchContext($notice);
+
         return view('notices.edit', compact('notice'));
     }
 
     public function update(Request $request, Notice $notice)
     {
+        $this->assertBranchContext($notice);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
@@ -59,13 +69,16 @@ class NoticeController extends Controller
             $validated['attachment'] = $request->file('attachment')->store('notices', 'public');
         }
         $notice->update($validated);
+
         return redirect()->route('notices.index')->with('success', 'Updated.');
     }
 
     public function destroy(Notice $notice)
     {
+        $this->assertBranchContext($notice);
+
         $notice->delete();
+
         return redirect()->route('notices.index')->with('success', 'Deleted.');
     }
 }
-

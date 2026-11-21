@@ -237,7 +237,7 @@ class AccountController extends Controller
     public function updateExpense(Request $request, Transaction $transaction)
     {
         $this->guard();
-        abort_if($transaction->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($transaction);
         abort_if($transaction->type !== 'expense', 404);
 
         $data = $request->validate([
@@ -269,7 +269,7 @@ class AccountController extends Controller
     public function destroyExpense(Transaction $transaction)
     {
         $this->guard();
-        abort_if($transaction->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($transaction);
         abort_if($transaction->type !== 'expense', 404);
 
         $transaction->delete();
@@ -388,7 +388,7 @@ class AccountController extends Controller
     public function updateSalary(Request $request, SalarySheet $salarySheet)
     {
         $this->guard();
-        abort_if($salarySheet->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($salarySheet, ['user']);
         abort_if($salarySheet->isPaid(), 403, 'Paid salary sheets cannot be edited. Revert the payment first.');
 
         $data = $request->validate([
@@ -412,7 +412,7 @@ class AccountController extends Controller
     public function paySalary(Request $request, SalarySheet $salarySheet)
     {
         $this->guard();
-        abort_if($salarySheet->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($salarySheet, ['user']);
 
         if ($salarySheet->isPaid()) {
             return back()->with('error', 'This salary is already marked as paid.');
@@ -455,7 +455,7 @@ class AccountController extends Controller
     public function unpaySalary(SalarySheet $salarySheet)
     {
         $this->guard();
-        abort_if($salarySheet->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($salarySheet, ['user']);
 
         if (! $salarySheet->isPaid()) {
             return back()->with('error', 'This salary is not marked as paid.');
@@ -527,7 +527,7 @@ class AccountController extends Controller
     public function destroySalary(SalarySheet $salarySheet)
     {
         $this->guard();
-        abort_if($salarySheet->institute_id !== $this->instituteId(), 403);
+        $this->assertBranchContext($salarySheet, ['user']);
 
         if ($salarySheet->isPaid()) {
             return back()->with('error', 'Paid salary sheets cannot be deleted. Revert the payment first.');

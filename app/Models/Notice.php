@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Notice extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
-        'institute_id', 'created_by', 'title', 'body',
+        'institute_id', 'branch_id', 'created_by', 'title', 'body',
         'attachment', 'is_pinned', 'expiry_date',
     ];
 
@@ -35,5 +38,12 @@ class Notice extends Model
         return $query->where(function ($q) {
             $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', now()->toDateString());
         });
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['creator', 'users.branch_id'],
+        ];
     }
 }

@@ -14,7 +14,7 @@ class ExamController extends Controller
 {
     private function getProjectId()
     {
-        return session('current_project_id', optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id);
+        return (int) session('current_project_id', (int) (optional(Project::where('institute_id', Auth::user()->institute_id)->first())->id ?? 0));
     }
 
     public function index(Request $request)
@@ -57,7 +57,7 @@ class ExamController extends Controller
         $validated = $this->validateExam($request);
 
         $batch = Batch::findOrFail($validated['batch_id']);
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $exam = Exam::create([
             'institute_id' => Auth::user()->institute_id,
@@ -138,7 +138,7 @@ class ExamController extends Controller
         $validated = $this->validateExam($request);
 
         $batch = Batch::findOrFail($validated['batch_id']);
-        abort_if($batch->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($batch, ['project']);
 
         $total = $this->syncQuestions($exam, $validated['questions'] ?? []);
 
@@ -272,7 +272,7 @@ class ExamController extends Controller
 
     private function scoped(Exam $exam): Exam
     {
-        abort_if($exam->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($exam, ['project', 'batch.project']);
 
         return $exam;
     }

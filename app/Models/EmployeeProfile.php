@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployeeProfile extends Model
 {
+    use BelongsToBranch;
     use HasFactory;
 
     public const STATUS_ACTIVE = 'active';
@@ -88,5 +90,12 @@ class EmployeeProfile extends Model
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+        ];
     }
 }

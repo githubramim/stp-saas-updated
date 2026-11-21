@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Schedule extends Model
 {
+    use BelongsToBranch;
+
     /**
      * Bangladesh weekly calendar: the week starts on Saturday.
      * 0=Saturday, 1=Sunday, 2=Monday, 3=Tuesday, 4=Wednesday, 5=Thursday, 6=Friday.
@@ -52,11 +55,11 @@ class Schedule extends Model
     }
 
     /**
-     * "09:00 AM – 11:00 AM"
+     * "09:00 AM â€“ 11:00 AM"
      */
     public function timeRange(): string
     {
-        return $this->start_time.' – '.$this->end_time;
+        return $this->start_time.' â€“ '.$this->end_time;
     }
 
     /**
@@ -83,5 +86,14 @@ class Schedule extends Model
         return ($this->room && $this->room === $other->room)
             || ($this->trainer_id && $this->trainer_id === $other->trainer_id)
             || $this->batch_id === $other->batch_id;
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['batch.project', 'projects.branch_id'],
+            ['trainer', 'users.branch_id'],
+        ];
     }
 }

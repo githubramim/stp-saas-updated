@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeadMessage extends Model
 {
+    use BelongsToBranch;
+
     public const CHANNEL_WHATSAPP = 'whatsapp';
 
     public const CHANNEL_SMS = 'sms';
@@ -58,5 +61,13 @@ class LeadMessage extends Model
             self::CHANNEL_SMS => 'bi-chat-dots',
             default => 'bi-sticky',
         };
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+            ['lead.project', 'projects.branch_id'],
+        ];
     }
 }

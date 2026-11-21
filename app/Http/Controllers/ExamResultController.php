@@ -180,7 +180,7 @@ class ExamResultController extends Controller
     {
         $this->scoped($exam);
 
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
 
         $exam->load(['batch', 'course', 'project']);
         $result = ExamResult::forStudent($exam, $student);
@@ -199,7 +199,7 @@ class ExamResultController extends Controller
 
     private function scoped(Exam $exam): Exam
     {
-        abort_if($exam->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($exam, ['project', 'batch.project']);
 
         return $exam;
     }

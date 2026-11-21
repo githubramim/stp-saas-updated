@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InternalEvaluation extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'institute_id', 'batch_id', 'trainer_id', 'student_id',
         'rating_score', 'review_comments', 'is_anonymous',
@@ -37,5 +40,13 @@ class InternalEvaluation extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['batch.project', 'projects.branch_id'],
+            ['trainer', 'users.branch_id'],
+        ];
     }
 }

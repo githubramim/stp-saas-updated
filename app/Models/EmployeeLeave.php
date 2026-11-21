@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployeeLeave extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_APPROVED = 'approved';
@@ -61,6 +64,13 @@ class EmployeeLeave extends Model
         $start = $this->start_date?->format('d M');
         $end = $this->end_date?->format('d M Y');
 
-        return $start && $end ? $start.' – '.$end : (string) $this->start_date;
+        return $start && $end ? $start.' â€“ '.$end : (string) $this->start_date;
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+        ];
     }
 }

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeadFollowUp extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_DONE = 'done';
@@ -93,5 +96,13 @@ class LeadFollowUp extends Model
         }
 
         return 'upcoming';
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+            ['lead.project', 'projects.branch_id'],
+        ];
     }
 }

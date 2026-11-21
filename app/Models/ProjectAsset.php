@@ -2,15 +2,22 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProjectAsset extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_IN_STOCK = 'in_stock';
+
     public const STATUS_DISTRIBUTED = 'distributed';
+
     public const STATUS_RETURNED = 'returned';
+
     public const STATUS_DAMAGED = 'damaged';
+
     public const STATUS_LOST = 'lost';
 
     protected $fillable = [
@@ -53,5 +60,13 @@ class ProjectAsset extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['project', 'projects.branch_id'],
+            ['student', 'students.branch_id'],
+        ];
     }
 }

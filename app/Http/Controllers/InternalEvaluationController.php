@@ -66,7 +66,10 @@ class InternalEvaluationController extends Controller
         ]);
 
         $batch = Batch::findOrFail($request->batch_id);
-        abort_if($batch->institute_id !== $instituteId, 403);
+        $this->assertBranchContext($batch, ['project']);
+
+        $trainer = User::findOrFail($request->trainer_id);
+        $this->assertBranchContext($trainer);
 
         InternalEvaluation::create([
             'institute_id' => $instituteId,
@@ -99,6 +102,7 @@ class InternalEvaluationController extends Controller
             ->whereHas('batch', fn ($q) => $q->where('project_id', $projectId));
 
         if ($selectedTrainerId) {
+            $this->assertBranchContext(User::findOrFail($selectedTrainerId));
             $evaluations->where('trainer_id', $selectedTrainerId);
         }
 

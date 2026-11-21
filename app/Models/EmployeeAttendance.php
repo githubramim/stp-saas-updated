@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmployeeAttendance extends Model
 {
+    use BelongsToBranch;
+
     public const STATUS_PRESENT = 'present';
 
     public const STATUS_LATE = 'late';
@@ -50,5 +53,12 @@ class EmployeeAttendance extends Model
     public function markedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'marked_by');
+    }
+
+    protected function branchRelations(): array
+    {
+        return [
+            ['user', 'users.branch_id'],
+        ];
     }
 }

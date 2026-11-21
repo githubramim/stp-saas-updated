@@ -23,14 +23,14 @@ class AdmissionController extends Controller
 
     public function show(Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
 
         return view('admissions.show', compact('student'));
     }
 
     public function print(Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
         $student->load(['course', 'batch', 'institute', 'project']);
 
         return view('admissions.print', compact('student'));
@@ -38,14 +38,11 @@ class AdmissionController extends Controller
 
     public function approve(Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
         $student->update([
             'status' => 'admitted',
-            // Admitted students belong to the branch active in the top bar
-            // (BRD module #21); without one they fall back to the default.
-            'branch_id' => $student->branch_id
-                ?? BranchContext::current(Auth::user())?->id
-                ?? BranchContext::defaultFor((int) Auth::user()->institute_id)?->id,
+            // Admitted students belong to the branch active in the top bar.
+            'branch_id' => BranchContext::scopeId(),
         ]);
 
         return back()->with('success', 'Student admitted successfully.');
@@ -53,7 +50,7 @@ class AdmissionController extends Controller
 
     public function reject(Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
         $student->update(['status' => 'rejected']);
 
         return back()->with('success', 'Student rejected.');
@@ -61,7 +58,7 @@ class AdmissionController extends Controller
 
     public function changeBatch(Request $request, Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
 
         $request->validate(['batch_id' => 'required|exists:batches,id']);
         $batch = Batch::findOrFail($request->batch_id);
@@ -74,7 +71,7 @@ class AdmissionController extends Controller
 
     public function changeBranch(Request $request, Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
 
         $request->validate(['branch_id' => 'required|exists:branches,id']);
         $branch = Branch::findOrFail($request->branch_id);
@@ -87,7 +84,7 @@ class AdmissionController extends Controller
 
     public function removeFromBatch(Student $student)
     {
-        abort_if($student->institute_id !== Auth::user()->institute_id, 403);
+        $this->assertBranchContext($student);
         $student->update(['batch_id' => null, 'status' => 'applied']);
 
         return back()->with('success', 'Student removed from batch.');

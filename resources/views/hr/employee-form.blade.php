@@ -49,12 +49,10 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label for="branch_id" class="form-label text-[11px] font-bold uppercase text-slate-400">{{ __('Branch') }} *</label>
-                            <select id="branch_id" name="branch_id" class="form-select form-select-sm rounded-3" required>
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}" {{ (int) old('branch_id', $user->branch_id ?: \App\Support\BranchContext::scopeId()) === $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                                @endforeach
-                            </select>
+                            <label class="form-label text-[11px] font-bold uppercase text-slate-400">{{ __('Branch') }}</label>
+                            <div class="form-control form-control-sm rounded-3 bg-slate-50 font-semibold text-slate-600">{{ $branch?->name ?? '—' }}</div>
+                            {{-- The active branch is enforced server-side; this field is display-only. --}}
+                            <input type="hidden" name="branch_id" value="{{ $branch?->id }}">
                         </div>
                         <div class="col-md-6">
                             <label for="designation" class="form-label text-[11px] font-bold uppercase text-slate-400">{{ __('Designation') }}</label>

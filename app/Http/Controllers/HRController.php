@@ -251,9 +251,10 @@ class HRController extends Controller
 
         $user = new User;
         $profile = new EmployeeProfile(['annual_leave_entitlement' => 12, 'employment_type' => 'full_time', 'status' => 'active']);
-        $branches = Branch::where('institute_id', $this->instituteId())->orderBy('id')->get();
+        // Staff always belong to the branch currently selected in the top bar.
+        $branch = Branch::find($this->branchId());
 
-        return view('hr.employee-form', compact('user', 'profile', 'branches'));
+        return view('hr.employee-form', compact('user', 'profile', 'branch'));
     }
 
     private function employeeRules(User $user): array
@@ -264,7 +265,6 @@ class HRController extends Controller
             'phone' => ['nullable', 'string', 'max:50'],
             'role' => ['required', 'in:admin,trainer,staff'],
             'designation' => ['nullable', 'string', 'max:100'],
-            'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')->where('institute_id', $this->instituteId())],
             'password' => [$user->exists ? 'nullable' : 'required', 'string', 'min:6', 'confirmed'],
             'employee_code' => ['nullable', 'string', 'max:30'],
             'joining_date' => ['required', 'date'],
@@ -298,7 +298,8 @@ class HRController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'institute_id' => $this->instituteId(),
-            'branch_id' => (int) $data['branch_id'],
+            // Forced to the active branch — a posted branch_id is never trusted.
+            'branch_id' => $this->branchId(),
             'phone' => $data['phone'] ?? null,
             'role' => $data['role'],
             'designation' => $data['designation'] ?? null,
@@ -320,9 +321,9 @@ class HRController extends Controller
         $this->assertBranchUser($user);
 
         $profile = $this->profileFor($user);
-        $branches = Branch::where('institute_id', $this->instituteId())->orderBy('id')->get();
+        $branch = Branch::find($this->branchId());
 
-        return view('hr.employee-form', compact('user', 'profile', 'branches'));
+        return view('hr.employee-form', compact('user', 'profile', 'branch'));
     }
 
     public function updateEmployee(Request $request, User $user)
@@ -339,7 +340,8 @@ class HRController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'institute_id' => $this->instituteId(),
-            'branch_id' => (int) $data['branch_id'],
+            // Moving a user to another branch via this form is not allowed.
+            'branch_id' => $this->branchId(),
             'phone' => $data['phone'] ?? null,
             'role' => $data['role'],
             'designation' => $data['designation'] ?? null,

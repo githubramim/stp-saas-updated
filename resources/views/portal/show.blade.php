@@ -47,6 +47,88 @@
         </div>
     </div>
 
+    {{-- Fee dues (BRD module #8) --}}
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b bg-gray-50 flex justify-between items-center">
+            <h2 class="font-semibold text-gray-800">Fee Summary & Dues</h2>
+            <span class="text-xs text-gray-500">Auto reminders are enabled via SMS &amp; portal</span>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                <div class="bg-slate-50 rounded-lg p-3">
+                    <div class="text-xs uppercase tracking-wide text-gray-500">Total Fee</div>
+                    <div class="text-lg font-bold text-gray-800">৳{{ number_format((float) ($feeSummary['net'] ?? 0), 2) }}</div>
+                </div>
+                <div class="bg-emerald-50 rounded-lg p-3">
+                    <div class="text-xs uppercase tracking-wide text-gray-500">Paid</div>
+                    <div class="text-lg font-bold text-emerald-600">৳{{ number_format((float) ($feeSummary['paid'] ?? 0), 2) }}</div>
+                </div>
+                <div class="bg-rose-50 rounded-lg p-3">
+                    <div class="text-xs uppercase tracking-wide text-gray-500">Due</div>
+                    <div class="text-lg font-bold text-rose-600">৳{{ number_format((float) ($feeSummary['due'] ?? 0), 2) }}</div>
+                </div>
+                <div class="bg-amber-50 rounded-lg p-3">
+                    <div class="text-xs uppercase tracking-wide text-gray-500">Overdue</div>
+                    <div class="text-lg font-bold text-amber-600">৳{{ number_format((float) ($feeSummary['overdue'] ?? 0), 2) }}</div>
+                </div>
+            </div>
+
+            @if($nextInstallment)
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-3 mb-4 text-sm rounded">
+                    Next installment #{{ $nextInstallment->sequence }} of ৳{{ number_format((float) $nextInstallment->balance, 2) }}
+                    is due on {{ $nextInstallment->due_date?->format('d M Y') ?? 'soon' }}.
+                </div>
+            @endif
+
+            @if($feeInstallments->isEmpty())
+                <p class="text-center text-gray-500 text-sm py-4">No fee plan has been assigned yet.</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b bg-white text-left">
+                                <th class="p-3 font-medium">Installment</th>
+                                <th class="p-3 font-medium">Due Date</th>
+                                <th class="p-3 font-medium text-right">Amount</th>
+                                <th class="p-3 font-medium text-right">Paid</th>
+                                <th class="p-3 font-medium text-right">Balance</th>
+                                <th class="p-3 font-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($feeInstallments->take(6) as $installment)
+                                <tr class="border-b last:border-0">
+                                    <td class="p-3 font-medium">#{{ $installment->sequence }}</td>
+                                    <td class="p-3 text-gray-500">{{ $installment->due_date?->format('d M Y') ?? '—' }}</td>
+                                    <td class="p-3 text-right">৳{{ number_format((float) $installment->amount, 2) }}</td>
+                                    <td class="p-3 text-right text-emerald-600">৳{{ number_format((float) $installment->paid_amount, 2) }}</td>
+                                    <td class="p-3 text-right text-rose-600">৳{{ number_format((float) $installment->balance, 2) }}</td>
+                                    <td class="p-3">
+                                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 uppercase">{{ $installment->status }}</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            @if($feeReminders->isNotEmpty())
+                <div class="mt-5 border-t pt-4">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Recent Fee Reminders</h3>
+                    <div class="space-y-2">
+                        @foreach($feeReminders as $reminder)
+                            <div class="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                                <span class="font-semibold uppercase text-indigo-600">{{ $reminder->channel }}</span>
+                                · {{ $reminder->due_date?->format('d M Y') ?? '—' }} · {{ \Illuminate\Support\Str::limit($reminder->message, 140) }}
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b bg-gray-50">
             <h2 class="font-semibold text-gray-800">Published Results</h2>

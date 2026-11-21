@@ -160,7 +160,13 @@
             </a>
 
             @if(!$isTrainer)
-                <!-- 8. Finance -->
+                <!-- 8. Enrollment & Fee Management -->
+                <a href="{{ route('fees.dashboard') }}" class="sidebar-item {{ request()->routeIs('fees.*') ? 'active' : '' }}">
+                    <i class="bi bi-cash-coin item-icon text-amber-400"></i>
+                    <span class="item-text">{{ __('Enrollment & Fees') }}</span>
+                </a>
+
+                <!-- 8.1 Finance -->
                 <a href="{{ route('transactions.index') }}" class="sidebar-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
                     <i class="bi bi-wallet2 item-icon text-emerald-400"></i>
                     <span class="item-text">{{ __('Finance') }}</span>

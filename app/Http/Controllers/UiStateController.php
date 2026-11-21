@@ -17,6 +17,7 @@ class UiStateController extends Controller
         'attendance.project-report', 'attendance.project-report.csv',
         'branches.index', 'certificates.index', 'crm.leads', 'crm.leads.export', 'crm.reminders',
         'evaluations.index', 'evaluations.report', 'exams.index', 'export.transactions',
+        'fees.adjustments', 'fees.installments', 'fees.plans', 'fees.reminders', 'fees.students',
         'hr.attendance', 'hr.employees', 'hr.leaves', 'hr.payroll',
         'id-cards.editor', 'id-cards.index', 'id-cards.print',
         'notices.index', 'notifications.index',

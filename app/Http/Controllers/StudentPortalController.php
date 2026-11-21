@@ -7,6 +7,7 @@ use App\Models\ExamResult;
 use App\Models\InternalEvaluation;
 use App\Models\Student;
 use App\Models\StudyMaterial;
+use App\Services\FeeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -14,6 +15,8 @@ use Illuminate\View\View;
 
 class StudentPortalController extends Controller
 {
+    public function __construct(private readonly FeeService $fees) {}
+
     /**
      * Show public portal search form.
      */
@@ -32,7 +35,11 @@ class StudentPortalController extends Controller
             'dob' => ['required', 'date'],
         ]);
 
-        $student = Student::where('reference_no', $validated['reference_no'])->first();
+        // Public lookup: ignore the staff branch scope that may be active in
+        // the same browser. Reference numbers are globally unique.
+        $student = Student::withoutGlobalScope('branch')
+            ->where('reference_no', $validated['reference_no'])
+            ->first();
 
         if (! $student || $student->dob?->toDateString() !== Carbon::parse($validated['dob'])->toDateString()) {
             return back()
@@ -55,6 +62,7 @@ class StudentPortalController extends Controller
             'unpublishedCount' => ExamResult::where('student_id', $student->id)
                 ->whereHas('exam', fn ($q) => $q->where('status', '!=', Exam::STATUS_PUBLISHED))
                 ->count(),
+            ...$this->fees->portalSummary($student),
         ]);
     }
 
@@ -69,19 +77,32 @@ class StudentPortalController extends Controller
 
         $input = trim($request->query_input);
 
-        $student = Student::with(['course', 'batch.trainer', 'institute', 'project'])
-            ->where('reference_no', $input)
-            ->orWhere('contact', $input)
-            ->first();
+        // Public lookup must ignore any staff branch scope active in the same
+        // browser. Grouping the OR conditions keeps the lookup unambiguous.
+        $matches = Student::withoutGlobalScope('branch')
+            ->with(['course', 'batch.trainer', 'institute', 'project'])
+            ->where(function ($q) use ($input) {
+                $q->where('reference_no', $input)->orWhere('contact', $input);
+            })
+            ->limit(2)
+            ->get();
 
-        if (!$student) {
+        if ($matches->isEmpty()) {
             return back()->with('error', 'No student application found for the provided Reference No or Phone Number.');
         }
+
+        if ($matches->count() > 1) {
+            return back()->with('error', 'More than one student matches that phone number. Please use your Reference No.');
+        }
+
+        $student = $matches->first();
 
         // Fetch Study Materials for the student's course and batch
         $studyMaterials = collect();
         if ($student->course_id) {
-            $studyMaterials = StudyMaterial::where('course_id', $student->course_id)
+            $studyMaterials = StudyMaterial::withoutGlobalScope('branch')
+                ->where('institute_id', $student->institute_id)
+                ->where('course_id', $student->course_id)
                 ->where(function ($q) use ($student) {
                     $q->whereNull('batch_id')->orWhere('batch_id', $student->batch_id);
                 })
@@ -89,7 +110,10 @@ class StudentPortalController extends Controller
                 ->get();
         }
 
-        return view('portal.dashboard', compact('student', 'studyMaterials'));
+        return view('portal.dashboard', array_merge(
+            compact('student', 'studyMaterials'),
+            $this->fees->portalSummary($student)
+        ));
     }
 
     /**
@@ -97,11 +121,11 @@ class StudentPortalController extends Controller
      */
     public function downloadMaterial(StudyMaterial $studyMaterial)
     {
-        if (!Storage::disk('public')->exists($studyMaterial->file_path)) {
+        if (! Storage::disk('public')->exists($studyMaterial->file_path)) {
             return back()->with('error', 'File not found on server.');
         }
 
-        return Storage::disk('public')->download($studyMaterial->file_path, $studyMaterial->title . '.' . $studyMaterial->file_type);
+        return Storage::disk('public')->download($studyMaterial->file_path, $studyMaterial->title.'.'.$studyMaterial->file_type);
     }
 
     /**
@@ -115,9 +139,9 @@ class StudentPortalController extends Controller
             'review_comments' => 'nullable|string|max:1000',
         ]);
 
-        $student = Student::findOrFail($request->student_id);
+        $student = Student::withoutGlobalScope('branch')->findOrFail($request->student_id);
 
-        if (!$student->batch_id || !$student->batch?->trainer_id) {
+        if (! $student->batch_id || ! $student->batch?->trainer_id) {
             return back()->with('error', 'You cannot submit an evaluation because no active batch/trainer is assigned to your record.');
         }
 

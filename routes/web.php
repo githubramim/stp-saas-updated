@@ -10,6 +10,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CrmController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\ExamResultController;
+use App\Http\Controllers\FeeController;
 use App\Http\Controllers\HRController;
 use App\Http\Controllers\IdCardController;
 use App\Http\Controllers\InstituteController;
@@ -228,7 +229,7 @@ Route::middleware('auth')->group(function () {
         ->whereIn('module', [
             'projects', 'courses', 'batches', 'attendance', 'exams', 'schedules',
             'transactions', 'study-materials', 'resources', 'certificates', 'id-cards',
-            'notifications', 'notices', 'evaluations', 'accounts', 'crm',
+            'notifications', 'notices', 'evaluations', 'accounts', 'crm', 'fees',
         ]);
 
     // Projects
@@ -342,6 +343,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions/export', [TransactionController::class, 'export'])->name('export.transactions');
     Route::get('/transactions/receipt/{transaction}', [TransactionController::class, 'receipt'])->name('transactions.receipt');
     Route::resource('transactions', TransactionController::class)->except(['create']);
+
+    // Enrollment & Fee Management (BRD module #8)
+    Route::prefix('fees')->name('fees.')->group(function () {
+        Route::get('/', [FeeController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/plans', [FeeController::class, 'feePlans'])->name('plans');
+        Route::post('/plans', [FeeController::class, 'storeFeePlan'])->name('plans.store');
+
+        Route::get('/students', [FeeController::class, 'studentPlans'])->name('students');
+        Route::post('/students', [FeeController::class, 'storeStudentPlan'])->name('students.store');
+        Route::get('/students/{student_fee_plan}', [FeeController::class, 'showStudentPlan'])->name('students.show');
+
+        Route::get('/installments', [FeeController::class, 'installments'])->name('installments');
+        Route::post('/installments/{fee_installment}/payments', [FeeController::class, 'storePayment'])->name('payments.store');
+
+        Route::get('/adjustments', [FeeController::class, 'adjustments'])->name('adjustments');
+        Route::post('/adjustments', [FeeController::class, 'storeAdjustment'])->name('adjustments.store');
+        Route::delete('/adjustments/{fee_adjustment}', [FeeController::class, 'destroyAdjustment'])->name('adjustments.destroy');
+
+        Route::get('/reminders', [FeeController::class, 'reminders'])->name('reminders');
+        Route::post('/reminders/send', [FeeController::class, 'sendReminders'])->name('reminders.send');
+    });
 
     // Accounts & Expense Management (daily expenses, salary sheets, P&L)
     Route::prefix('accounts')->name('accounts.')->group(function () {
